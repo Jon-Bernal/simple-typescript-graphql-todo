@@ -1,0 +1,27 @@
+# TodoType
+
+enum Status {
+  COMPLETE
+  INCOMPLETE
+}
+
+type Todo {
+  _id: ID!
+  content: String!
+  status: Status!
+}
+
+type Query {
+  todo(_id: ID!): Todo!
+  todos: [Todo]!
+}
+
+type Mutation {
+  makeTodo(content: String!): Todo!
+  updateTodo(_id: ID!, content: String!): Todo!
+  deleteTodo(_id: ID!): Boolean!
+  updateStatus(_id: ID!, status: Status!): Todo!
+}
+
+# TODO: add users
+# TODO: Add a subscription
