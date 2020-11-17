@@ -1,0 +1,14 @@
+overwrite: true
+schema: "./graphql/typeDefsGen.ts"
+watch: true
+documents: null
+generates:
+  ./codeGenBE/index.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+      - "typescript-mongodb"
+      - "typescript-document-nodes"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

@@ -6,6 +6,7 @@ const express = require("express");
 // const mongoose = require("mongoose");
 const { ApolloServer, AuthenticationError } = require("apollo-server-express");
 import { typeDefs } from "./graphql/typeDefs";
+
 import { resolvers } from "./graphql/resolvers";
 // const models = require("./mongooseModels");
 
@@ -31,8 +32,8 @@ const options: cors.CorsOptions = {
   preflightContinue: false,
 };
 
-let db: any; // TODO: Change any to whatever type it really is.
 // db is an object
+let db: any; // TODO: Change any to whatever type it really is.
 
 MongoClient.connect(
   `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@test.6slk2.mongodb.net/todos?retryWrites=true`,

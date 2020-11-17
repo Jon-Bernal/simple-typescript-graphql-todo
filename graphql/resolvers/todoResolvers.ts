@@ -2,14 +2,21 @@
 
 import { ObjectID } from "mongodb";
 
-export default {
-  Query: {
-    todo: async (parent, args, context, info) => {
-      try {
-        const { _id } = args;
-        const { db } = context;
+import { QueryResolvers, MutationResolvers } from "../../codeGenBE";
 
-        const todo: any = await db
+interface Resolvers {
+  Query: QueryResolvers;
+  Mutation: MutationResolvers;
+}
+
+export const todoResolvers: Resolvers = {
+  Query: {
+    todo: async (parent, { _id }, { db }, info) => {
+      try {
+        // const { _id } = args;
+        // const { db } = context;
+
+        const todo = await db
           .db("todos")
           .collection("mine")
           .findOne({ _id: new ObjectID(_id) });
@@ -17,11 +24,12 @@ export default {
         return todo;
       } catch (error) {
         console.log("error :>> ", error);
+        return "error";
       }
     },
     todos: async (parent, args, context, info) => {
       try {
-        const { _id } = args;
+        // const { _id } = args;
         const { db } = context;
 
         const todos = await db
@@ -37,7 +45,7 @@ export default {
     },
   },
   Mutation: {
-    makeTodo: async (parent: any, args: any, context: any, info: any) => {
+    makeTodo: async (parent, args, context, info) => {
       try {
         const { db } = context;
         const { content } = args;
@@ -48,7 +56,9 @@ export default {
         const newTodo = dbRes.ops[0];
 
         return newTodo;
-      } catch (error) {}
+      } catch (error) {
+        console.log("error :>> ", error);
+      }
     },
     updateTodo: async (parent, args, context, info) => {
       try {
@@ -109,3 +119,5 @@ export default {
     },
   },
 };
+
+// export {resolvers};
