@@ -5,11 +5,35 @@ enum Status {
   INCOMPLETE
 }
 
+# interface Error {
+#   genericMessage: String
+# }
+
 type Todo {
   _id: ID!
   content: String!
   status: Status!
 }
+
+# type TodoError implements Error {
+type TodoError {
+  # genericMessage: String
+  todoError: String
+}
+
+# type TodoDeleteSuccess implements Error {
+#   genericMessage: String
+#   deleteSuccess: String
+# }
+
+# union TodoResponse = Todo | TodoError | TodoDeleteSuccess
+# union TodoResponse = Todo | TodoError
+
+type TodoArr {
+  Todos: [Todo]!
+}
+
+# union TodoArrResponse = TodoArr | TodoError
 
 type Query {
   todo(_id: ID!): Todo!

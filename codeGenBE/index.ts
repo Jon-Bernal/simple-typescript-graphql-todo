@@ -32,6 +32,16 @@ export type Todo = {
   status: Status;
 };
 
+export type TodoError = {
+  __typename?: 'TodoError';
+  todoError?: Maybe<Scalars['String']>;
+};
+
+export type TodoArr = {
+  __typename?: 'TodoArr';
+  Todos: Array<Maybe<Todo>>;
+};
+
 export type Query = {
   __typename?: 'Query';
   todo: Todo;
@@ -160,6 +170,8 @@ export type ResolversTypes = {
   Todo: ResolverTypeWrapper<Todo>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  TodoError: ResolverTypeWrapper<TodoError>;
+  TodoArr: ResolverTypeWrapper<TodoArr>;
   Query: ResolverTypeWrapper<{}>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
@@ -171,6 +183,8 @@ export type ResolversParentTypes = {
   Todo: Todo;
   ID: Scalars['ID'];
   String: Scalars['String'];
+  TodoError: TodoError;
+  TodoArr: TodoArr;
   Query: {};
   Mutation: {};
   Boolean: Scalars['Boolean'];
@@ -219,6 +233,16 @@ export type TodoResolvers<ContextType = any, ParentType extends ResolversParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TodoErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['TodoError'] = ResolversParentTypes['TodoError']> = {
+  todoError?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TodoArrResolvers<ContextType = any, ParentType extends ResolversParentTypes['TodoArr'] = ResolversParentTypes['TodoArr']> = {
+  Todos?: Resolver<Array<Maybe<ResolversTypes['Todo']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<QueryTodoArgs, '_id'>>;
   todos?: Resolver<Array<Maybe<ResolversTypes['Todo']>>, ParentType, ContextType>;
@@ -233,6 +257,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type Resolvers<ContextType = any> = {
   Todo?: TodoResolvers<ContextType>;
+  TodoError?: TodoErrorResolvers<ContextType>;
+  TodoArr?: TodoArrResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
 };
