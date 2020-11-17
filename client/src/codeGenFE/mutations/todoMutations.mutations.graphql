@@ -1,0 +1,30 @@
+# mutation MAKE_TODO {
+#   makeTodo(content: "my third todo") {
+#     _id
+#     status
+#     content
+#   }
+# }
+
+# mutation UPDATE_TODO {
+#   updateTodo(
+#     _id: "5fb2f34fdf74b3565f24928c"
+#     content: "Really this time, updated Todo"
+#   ) {
+#     _id
+#     status
+#     content
+#   }
+# }
+
+# mutation UPDATE_STATUS {
+#   updateStatus(_id: "5fb2f34fdf74b3565f24928c", status: COMPLETE) {
+#     _id
+#     status
+#     content
+#   }
+# }
+
+# mutation DELETE_TODO($_id: ID!) {
+#   deleteTodo(_id: $_id)
+# }

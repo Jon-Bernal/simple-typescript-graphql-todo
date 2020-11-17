@@ -18,19 +18,19 @@ const { MongoClient } = mongodb;
 dotenv.config({ path: __dirname + "/.env" });
 //options for cors midddleware
 
-const options: cors.CorsOptions = {
-  allowedHeaders: [
-    "Origin",
-    "X-Requested-With",
-    "Content-Type",
-    "Accept",
-    "X-Access-Token",
-  ],
-  credentials: true,
-  methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-  origin: "http://localhost:5000",
-  preflightContinue: false,
-};
+// const options: cors.CorsOptions = {
+//   allowedHeaders: [
+//     "Origin",
+//     "X-Requested-With",
+//     "Content-Type",
+//     "Accept",
+//     "X-Access-Token",
+//   ],
+//   credentials: true,
+//   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+//   origin: "http://localhost:5000",
+//   preflightContinue: false,
+// };
 
 // db is an object
 let db: any; // TODO: Change any to whatever type it really is.
@@ -51,7 +51,8 @@ MongoClient.connect(
 );
 
 const app = express();
-app.use(cors(options));
+// app.use(cors(options));
+app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
