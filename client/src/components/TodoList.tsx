@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import SingleTodo from "./SingleTodo";
-import { useFetch_All_TodosQuery } from "../codeGenFE";
+import { useFetch_All_TodosQuery, Todo } from "../codeGenFE";
 
 const TodoList: FC = () => {
   const { data, loading, error } = useFetch_All_TodosQuery();
@@ -17,9 +17,9 @@ const TodoList: FC = () => {
   return (
     <div>
       {data?.todos?.map((t) => {
-        if (t?.__typename === "Todo") {
-          return <SingleTodo data={t} />;
-        }
+        // if (t?.__typename === "Todo") {
+        return <SingleTodo data={t!} key={t!._id} />;
+        // }
       })}
     </div>
   );

@@ -6,7 +6,7 @@ interface Props {
   // children: ()
 }
 
-const SingleTodo: FC<Props | undefined> = ({ data }) => {
+const SingleTodo: FC<Props> = ({ data }) => {
   const { _id, status, content } = data;
   return (
     <div>
