@@ -6,6 +6,8 @@ import { ApolloError } from "apollo-server-express";
 import {
   QueryResolvers,
   MutationResolvers,
+  // TodoError,
+  // TodoResponse,
   // TodoResolvers,
 } from "../../codeGenBE";
 
@@ -27,22 +29,22 @@ export const todoResolvers: Resolvers = {
           .collection("mine")
           .findOne({ _id: new ObjectID(_id) });
 
-        if (!todo) {
-          // return {
-          //   __typename: "TodoError",
-          //   todoError: "Couldn't find todo with that ID",
-          // };
-        }
+        // if (!todo) {
+        //   return {
+        //     __typename: "TodoError",
+        //     todoError: "Couldn't find todo with that ID",
+        //   };
+        // }
 
-        return { __typename: "Todo", ...todo };
-        // return todo;
+        // return { __typename: "Todo", ...todo };
+        return todo;
       } catch (error) {
         console.log("error :>> ", error);
         // return {
         //   __typename: "TodoError",
         //   todoError: "Something went wrong fetching single todo",
         // };
-        // return "error";
+        return "error";
       }
     },
     todos: async (parent, args, { db }, info) => {
@@ -57,21 +59,28 @@ export const todoResolvers: Resolvers = {
           .toArray();
 
         // if (!todos) {
-        // return {
-        //   __typename: "TodoError",
-        //   todoError: "Couldn't add todo right now please try again.",
-        // };
+        //   return {
+        //     __typename: "TodoError",
+        //     todoError: "Couldn't add todo right now please try again.",
+        //   };
         // }
         console.log("typeof todos :>> ", todos);
 
-        // return { __typename: "Todo", ...todos };
+        // if (typeof todos === "object") {
+        // if ("todo" in todos) {
+        // if ("todoError" in todos) {
+        // if (!todos || todos.length() === 0) {
+        //   return { __typename: "TodoError", todoError: "NEW BS ERROR" };
+        // } else {
+        //   return { __typename: "Todo", ...todos };
+        // }
         return todos;
       } catch (error) {
         console.log("error :>> ", error);
-        // return {
-        //   __typename: "TodoError",
-        //   genericMessage: "Something went wrong fetching todos.",
-        // };
+        return {
+          __typename: "TodoError",
+          todoError: "Something went wrong fetching todos.",
+        };
       }
     },
   },

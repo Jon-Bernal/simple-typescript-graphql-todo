@@ -1,0 +1,6 @@
+query FETCH_TODO($id: ID!) {
+  todo(_id: $id) {
+    _id
+    status
+    content
+  }

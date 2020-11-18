@@ -1,0 +1,3 @@
+mutation DELETE_TODO($id: ID!) {
+  deleteTodo(_id: $id)
+}

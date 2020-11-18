@@ -1,0 +1,7 @@
+#import '../fragments/todo.fragment.graphql';
+
+mutation MAKE_TODO($content: String!) {
+  makeTodo(content: $content) {
+    ...todo
+  }
+}

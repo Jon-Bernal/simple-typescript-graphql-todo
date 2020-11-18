@@ -1,0 +1,7 @@
+query FETCH_ALL_TODOS {
+  todos {
+    _id
+    status
+    content
+  }
+}

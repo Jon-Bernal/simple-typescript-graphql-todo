@@ -16,10 +16,10 @@ type Todo {
 }
 
 # type TodoError implements Error {
-type TodoError {
-  # genericMessage: String
-  todoError: String
-}
+# type TodoError {
+#   # genericMessage: String
+#   todoError: String
+# }
 
 # type TodoDeleteSuccess implements Error {
 #   genericMessage: String
@@ -29,9 +29,9 @@ type TodoError {
 # union TodoResponse = Todo | TodoError | TodoDeleteSuccess
 # union TodoResponse = Todo | TodoError
 
-type TodoArr {
-  Todos: [Todo]!
-}
+# type TodoArr {
+#   Todos: [Todo]!
+# }
 
 # union TodoArrResponse = TodoArr | TodoError
 
