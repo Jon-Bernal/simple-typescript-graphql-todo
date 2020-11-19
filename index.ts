@@ -35,7 +35,7 @@ dotenv.config({ path: __dirname + "/.env" });
 // db is an object
 let db: any; // TODO: Change any to whatever type it really is.
 MongoClient.connect(
-  `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PW}@ts-gql-codegen.7c6pe.mongodb.net/todos?retryWrites=true`,
+  `${process.env.MONGO_STRING}`,
   { useNewUrlParser: true, useUnifiedTopology: true },
   (err: any, database: any) => {
     // TODO: change the types above when you figure out what they should be.

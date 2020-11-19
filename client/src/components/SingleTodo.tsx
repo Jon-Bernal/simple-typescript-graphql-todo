@@ -1,18 +1,19 @@
 import React, { FC } from "react";
-import { Todo } from "../codeGenFE/index";
+
+import { Todo, Status } from "../codeGenFE/index";
+import Checkbox from "./Checkbox";
 
 interface Props {
   data: Todo;
-  // children: ()
 }
 
 const SingleTodo: FC<Props> = ({ data }) => {
   const { _id, status, content } = data;
   return (
     <div>
-      <p>{_id}</p>
-      <p>{status}</p>
-      <p>{content}</p>
+      <p>
+        <Checkbox status={status} id={_id} /> {content}
+      </p>
     </div>
   );
 };
