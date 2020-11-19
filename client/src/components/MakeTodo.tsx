@@ -5,6 +5,14 @@ interface Props {
   // content: string;
 }
 
+// interface State {
+//
+// }
+//
+// interface Actions {
+//
+// }
+
 const MakeTodo: FC<Props> = () => {
   // const { content } = props;
   const [todoText, setTodoText] = useState("");
