@@ -1,4 +1,4 @@
-query FETCH_TODO($id: ID!) {
+query FetchTodo($id: ID!) {
   todo(_id: $id) {
     _id
     status

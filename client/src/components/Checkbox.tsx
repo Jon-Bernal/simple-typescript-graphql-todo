@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Status, useUpdate_StatusMutation, Todo } from "../codeGenFE/index";
+import { Status, useUpdateStatusMutation, Todo } from "../codeGenFE/index";
 
 interface Props {
   status: Status;
@@ -29,7 +29,7 @@ const Checkbox: FC<Props> = ({ status, id }) => {
   const [
     updateStatusMutation,
     { data, loading, error },
-  ] = useUpdate_StatusMutation({
+  ] = useUpdateStatusMutation({
     variables: {
       id: id, // value for 'id'
       // status: status === "INCOMPLETE" ? "COMPLETE" : "INCOMPLETE", // value for 'status'

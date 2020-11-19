@@ -1,4 +1,4 @@
-query FETCH_ALL_TODOS {
+query FetchAllTodos {
   todos {
     _id
     status

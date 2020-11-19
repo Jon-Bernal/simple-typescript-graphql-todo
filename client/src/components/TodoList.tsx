@@ -1,9 +1,9 @@
 import React, { FC } from "react";
 import SingleTodo from "./SingleTodo";
-import { useFetch_All_TodosQuery, Todo } from "../codeGenFE";
+import { useFetchAllTodosQuery, Todo } from "../codeGenFE";
 
 const TodoList: FC = () => {
-  const { data, loading, error } = useFetch_All_TodosQuery();
+  const { data, loading, error } = useFetchAllTodosQuery();
 
   if (loading) {
     console.log("loading", loading);

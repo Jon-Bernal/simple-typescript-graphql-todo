@@ -1,5 +1,8 @@
 import React, { FC, useState, ChangeEvent } from "react";
-import { useMake_TodoMutation } from "../codeGenFE";
+import { useMakeTodoMutation } from "../codeGenFE";
+import { ApolloConsumer } from "@apollo/client";
+
+console.log("Cache :>> ", Cache);
 
 interface Props {
   // content: string;
@@ -16,11 +19,37 @@ interface Props {
 const MakeTodo: FC<Props> = () => {
   // const { content } = props;
   const [todoText, setTodoText] = useState("");
-  const [makeTodoMutation, { data, loading, error }] = useMake_TodoMutation({
-    variables: {
-      content: todoText, // value for 'content'
-    },
-  });
+  const [makeTodoMutation, { data, loading, error }] = useMakeTodoMutation(
+    {
+      variables: {
+        content: todoText, // value for 'content'
+      },
+    }
+    // , {update(cache, {data: {makeTodoMutation}})}
+  );
+
+  // function AddTodo() {
+  //   let input;
+  //   const [addTodo] = useMutation(ADD_TODO, {
+  //     update(cache, { data: { addTodo } }) {
+  //       cache.modify({
+  //         fields: {
+  //           todos(existingTodos = []) {
+  //             const newTodoRef = cache.writeFragment({
+  //               data: addTodo,
+  //               fragment: gql`
+  //                 fragment NewTodo on Todo {
+  //                   id
+  //                   type
+  //                 }
+  //               `
+  //             });
+  //             return [...existingTodos, newTodoRef];
+  //           }
+  //         }
+  //       });
+  //     }
+  //   });
 
   if (loading) {
     return <span>loading...</span>;

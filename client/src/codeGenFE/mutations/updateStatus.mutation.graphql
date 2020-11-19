@@ -1,4 +1,4 @@
-mutation UPDATE_STATUS($id: ID!, $status: Status!) {
+mutation UpdateStatus($id: ID!, $status: Status!) {
   updateStatus(_id: $id, status: $status) {
     _id
     status

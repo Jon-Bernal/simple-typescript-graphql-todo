@@ -1,4 +1,4 @@
-mutation UPDATE_TODO($id: ID!, $content: String!) {
+mutation UpdateTodo($id: ID!, $content: String!) {
   updateTodo(_id: $id, content: $content) {
     _id
     status
