@@ -4,3 +4,4 @@ query FetchTodo($id: ID!) {
     status
     content
   }
+}

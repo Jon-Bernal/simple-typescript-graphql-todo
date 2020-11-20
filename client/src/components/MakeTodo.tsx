@@ -1,55 +1,29 @@
 import React, { FC, useState, ChangeEvent } from "react";
-import { useMakeTodoMutation } from "../codeGenFE";
-import { ApolloConsumer } from "@apollo/client";
+import { TodoFragmentDoc, useMakeTodoMutation } from "../codeGenFE";
 
-console.log("Cache :>> ", Cache);
-
-interface Props {
-  // content: string;
-}
-
-// interface State {
-//
-// }
-//
-// interface Actions {
-//
-// }
-
-const MakeTodo: FC<Props> = () => {
-  // const { content } = props;
+const MakeTodo: FC = () => {
   const [todoText, setTodoText] = useState("");
-  const [makeTodoMutation, { data, loading, error }] = useMakeTodoMutation(
-    {
-      variables: {
-        content: todoText, // value for 'content'
-      },
-    }
-    // , {update(cache, {data: {makeTodoMutation}})}
-  );
-
-  // function AddTodo() {
-  //   let input;
-  //   const [addTodo] = useMutation(ADD_TODO, {
-  //     update(cache, { data: { addTodo } }) {
-  //       cache.modify({
-  //         fields: {
-  //           todos(existingTodos = []) {
-  //             const newTodoRef = cache.writeFragment({
-  //               data: addTodo,
-  //               fragment: gql`
-  //                 fragment NewTodo on Todo {
-  //                   id
-  //                   type
-  //                 }
-  //               `
-  //             });
-  //             return [...existingTodos, newTodoRef];
-  //           }
-  //         }
-  //       });
-  //     }
-  //   });
+  const [makeTodoMutation, { loading, error }] = useMakeTodoMutation({
+    variables: {
+      content: todoText, // value for 'content'
+    },
+    update(cache, { data }) {
+      cache.modify({
+        fields: {
+          todos(existingTodos = []) {
+            const newTodoRef = cache.writeFragment({
+              data: data?.makeTodo,
+              fragment: TodoFragmentDoc,
+            });
+            return [...existingTodos, newTodoRef];
+          },
+        },
+      });
+    },
+    onError(error) {
+      // Run error dispatch or retry logic here
+    },
+  });
 
   if (loading) {
     return <span>loading...</span>;
@@ -57,7 +31,7 @@ const MakeTodo: FC<Props> = () => {
 
   if (error) {
     console.log("error", error);
-    return <span>loading...</span>;
+    return <span>error...</span>;
   }
 
   const handleChange = (ev: ChangeEvent<HTMLInputElement>) => {

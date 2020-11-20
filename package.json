@@ -32,6 +32,7 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
+    "@types/react-icons": "^3.0.0",
     "apollo-server-express": "^2.19.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
@@ -39,6 +40,7 @@
     "express": "^4.17.1",
     "graphql": "^15.4.0",
     "graphql-tools": "^7.0.1",
-    "mongodb": "^3.6.3"
+    "mongodb": "^3.6.3",
+    "react-icons": "^3.11.0"
   }
 }

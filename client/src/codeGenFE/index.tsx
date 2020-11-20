@@ -132,6 +132,19 @@ export type FetchAllTodosQuery = (
   )>> }
 );
 
+export type FetchTodoQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type FetchTodoQuery = (
+  { __typename?: 'Query' }
+  & { todo: (
+    { __typename?: 'Todo' }
+    & Pick<Todo, '_id' | 'status' | 'content'>
+  ) }
+);
+
 export const TodoFragmentDoc = gql`
     fragment todo on Todo {
   _id
@@ -305,3 +318,38 @@ export function useFetchAllTodosLazyQuery(baseOptions?: ApolloReactHooks.LazyQue
 export type FetchAllTodosQueryHookResult = ReturnType<typeof useFetchAllTodosQuery>;
 export type FetchAllTodosLazyQueryHookResult = ReturnType<typeof useFetchAllTodosLazyQuery>;
 export type FetchAllTodosQueryResult = Apollo.QueryResult<FetchAllTodosQuery, FetchAllTodosQueryVariables>;
+export const FetchTodoDocument = gql`
+    query FetchTodo($id: ID!) {
+  todo(_id: $id) {
+    _id
+    status
+    content
+  }
+}
+    `;
+
+/**
+ * __useFetchTodoQuery__
+ *
+ * To run a query within a React component, call `useFetchTodoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useFetchTodoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useFetchTodoQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useFetchTodoQuery(baseOptions: ApolloReactHooks.QueryHookOptions<FetchTodoQuery, FetchTodoQueryVariables>) {
+        return ApolloReactHooks.useQuery<FetchTodoQuery, FetchTodoQueryVariables>(FetchTodoDocument, baseOptions);
+      }
+export function useFetchTodoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FetchTodoQuery, FetchTodoQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<FetchTodoQuery, FetchTodoQueryVariables>(FetchTodoDocument, baseOptions);
+        }
+export type FetchTodoQueryHookResult = ReturnType<typeof useFetchTodoQuery>;
+export type FetchTodoLazyQueryHookResult = ReturnType<typeof useFetchTodoLazyQuery>;
+export type FetchTodoQueryResult = Apollo.QueryResult<FetchTodoQuery, FetchTodoQueryVariables>;

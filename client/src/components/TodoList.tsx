@@ -1,8 +1,12 @@
-import React, { FC } from "react";
+import React, { FC, Dispatch, SetStateAction } from "react";
 import SingleTodo from "./SingleTodo";
 import { useFetchAllTodosQuery, Todo } from "../codeGenFE";
 
-const TodoList: FC = () => {
+interface Props {
+  setTodoID: Dispatch<SetStateAction<string | null>>;
+}
+
+const TodoList: FC<Props> = ({ setTodoID }) => {
   const { data, loading, error } = useFetchAllTodosQuery();
 
   if (loading) {
@@ -18,7 +22,7 @@ const TodoList: FC = () => {
     <div>
       {data?.todos?.map((t) => {
         // if (t?.__typename === "Todo") {
-        return <SingleTodo data={t!} key={t!._id} />;
+        return <SingleTodo todo={t!} key={t!._id} setTodoID={setTodoID} />;
         // }
       })}
     </div>
@@ -26,4 +30,3 @@ const TodoList: FC = () => {
 };
 
 export default TodoList;
-// <SingleTodo _id={t._id} status={t.status} content={t.content}/>
