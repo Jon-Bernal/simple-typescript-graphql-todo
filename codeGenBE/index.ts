@@ -20,22 +20,28 @@ export type Scalars = {
 
 
 
-export enum Status {
-  Complete = 'COMPLETE',
-  Incomplete = 'INCOMPLETE'
-}
-
-export type Todo = {
-  __typename?: 'Todo';
+export type Comment = {
+  __typename?: 'Comment';
   _id: Scalars['ID'];
-  content: Scalars['String'];
-  status: Status;
+  userId: Scalars['ID'];
+  comment: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  getComments: Array<Maybe<Comment>>;
+  getAllComments: Array<Maybe<Comment>>;
   todo: Todo;
   todos: Array<Maybe<Todo>>;
+  user: User;
+  users: Array<Maybe<User>>;
+  me: User;
+  getUserData: UserData;
+};
+
+
+export type QueryGetCommentsArgs = {
+  userId: Scalars['String'];
 };
 
 
@@ -43,17 +49,56 @@ export type QueryTodoArgs = {
   _id: Scalars['ID'];
 };
 
+
+export type QueryUserArgs = {
+  _id: Scalars['ID'];
+};
+
+
+export type QueryMeArgs = {
+  _id: Scalars['ID'];
+};
+
+
+export type QueryGetUserDataArgs = {
+  _id: Scalars['ID'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  makeComment: Comment;
+  updateComment: Comment;
+  deleteComment?: Maybe<Scalars['Boolean']>;
   makeTodo: Todo;
   updateTodo: Todo;
   deleteTodo: Scalars['Boolean'];
   updateStatus: Todo;
+  register: RegisterResponse;
+  login: LoginResponse;
+  logout: Scalars['Boolean'];
+};
+
+
+export type MutationMakeCommentArgs = {
+  userId: Scalars['String'];
+  comment: Scalars['String'];
+};
+
+
+export type MutationUpdateCommentArgs = {
+  _id: Scalars['ID'];
+  comment: Scalars['String'];
+};
+
+
+export type MutationDeleteCommentArgs = {
+  _id: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 
 export type MutationMakeTodoArgs = {
-  content: Scalars['String'];
+  input: MakeTodoInput;
 };
 
 
@@ -72,6 +117,82 @@ export type MutationUpdateStatusArgs = {
   _id: Scalars['ID'];
   status: Status;
 };
+
+
+export type MutationRegisterArgs = {
+  input: UserRegisterInput;
+};
+
+
+export type MutationLoginArgs = {
+  input: UserLoginInput;
+};
+
+export enum Status {
+  Complete = 'COMPLETE',
+  Incomplete = 'INCOMPLETE'
+}
+
+export type Todo = {
+  __typename?: 'Todo';
+  _id: Scalars['ID'];
+  userId: Scalars['ID'];
+  content: Scalars['String'];
+  status: Status;
+};
+
+export type MakeTodoInput = {
+  userId: Scalars['String'];
+  content: Scalars['String'];
+};
+
+export type Token = {
+  __typename?: 'Token';
+  token: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  _id: Scalars['ID'];
+  username: Scalars['String'];
+};
+
+export type UserData = {
+  __typename?: 'UserData';
+  user?: Maybe<User>;
+  todos?: Maybe<Array<Maybe<Todo>>>;
+  comments?: Maybe<Array<Maybe<Comment>>>;
+};
+
+export type UserDataError = {
+  __typename?: 'UserDataError';
+  message?: Maybe<Scalars['String']>;
+};
+
+export type UserLoginInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type LoginError = {
+  __typename?: 'LoginError';
+  message: Scalars['String'];
+};
+
+export type LoginResponse = Token | LoginError;
+
+export type UserRegisterInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+  confirmPassword: Scalars['String'];
+};
+
+export type RegisterError = {
+  __typename?: 'RegisterError';
+  message: Scalars['String'];
+};
+
+export type RegisterResponse = Token | RegisterError;
 
 export type AdditionalEntityFields = {
   path?: Maybe<Scalars['String']>;
@@ -156,24 +277,48 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Status: Status;
-  Todo: ResolverTypeWrapper<Todo>;
+  Comment: ResolverTypeWrapper<Comment>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Query: ResolverTypeWrapper<{}>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Status: Status;
+  Todo: ResolverTypeWrapper<Todo>;
+  MakeTodoInput: MakeTodoInput;
+  Token: ResolverTypeWrapper<Token>;
+  User: ResolverTypeWrapper<User>;
+  UserData: ResolverTypeWrapper<UserData>;
+  UserDataError: ResolverTypeWrapper<UserDataError>;
+  UserLoginInput: UserLoginInput;
+  LoginError: ResolverTypeWrapper<LoginError>;
+  LoginResponse: ResolversTypes['Token'] | ResolversTypes['LoginError'];
+  UserRegisterInput: UserRegisterInput;
+  RegisterError: ResolverTypeWrapper<RegisterError>;
+  RegisterResponse: ResolversTypes['Token'] | ResolversTypes['RegisterError'];
   AdditionalEntityFields: AdditionalEntityFields;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Todo: Todo;
+  Comment: Comment;
   ID: Scalars['ID'];
   String: Scalars['String'];
   Query: {};
   Mutation: {};
   Boolean: Scalars['Boolean'];
+  Todo: Todo;
+  MakeTodoInput: MakeTodoInput;
+  Token: Token;
+  User: User;
+  UserData: UserData;
+  UserDataError: UserDataError;
+  UserLoginInput: UserLoginInput;
+  LoginError: LoginError;
+  LoginResponse: ResolversParentTypes['Token'] | ResolversParentTypes['LoginError'];
+  UserRegisterInput: UserRegisterInput;
+  RegisterError: RegisterError;
+  RegisterResponse: ResolversParentTypes['Token'] | ResolversParentTypes['RegisterError'];
   AdditionalEntityFields: AdditionalEntityFields;
 };
 
@@ -212,29 +357,99 @@ export type MapDirectiveArgs = {   path: Scalars['String']; };
 
 export type MapDirectiveResolver<Result, Parent, ContextType = any, Args = MapDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
+export type CommentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Comment'] = ResolversParentTypes['Comment']> = {
+  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  comment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  getComments?: Resolver<Array<Maybe<ResolversTypes['Comment']>>, ParentType, ContextType, RequireFields<QueryGetCommentsArgs, 'userId'>>;
+  getAllComments?: Resolver<Array<Maybe<ResolversTypes['Comment']>>, ParentType, ContextType>;
+  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<QueryTodoArgs, '_id'>>;
+  todos?: Resolver<Array<Maybe<ResolversTypes['Todo']>>, ParentType, ContextType>;
+  user?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryUserArgs, '_id'>>;
+  users?: Resolver<Array<Maybe<ResolversTypes['User']>>, ParentType, ContextType>;
+  me?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryMeArgs, '_id'>>;
+  getUserData?: Resolver<ResolversTypes['UserData'], ParentType, ContextType, RequireFields<QueryGetUserDataArgs, '_id'>>;
+};
+
+export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  makeComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationMakeCommentArgs, 'userId' | 'comment'>>;
+  updateComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationUpdateCommentArgs, '_id' | 'comment'>>;
+  deleteComment?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteCommentArgs, '_id' | 'userId'>>;
+  makeTodo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationMakeTodoArgs, 'input'>>;
+  updateTodo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, '_id' | 'content'>>;
+  deleteTodo?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, '_id'>>;
+  updateStatus?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationUpdateStatusArgs, '_id' | 'status'>>;
+  register?: Resolver<ResolversTypes['RegisterResponse'], ParentType, ContextType, RequireFields<MutationRegisterArgs, 'input'>>;
+  login?: Resolver<ResolversTypes['LoginResponse'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'input'>>;
+  logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+};
+
 export type TodoResolvers<ContextType = any, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['Status'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  todo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<QueryTodoArgs, '_id'>>;
-  todos?: Resolver<Array<Maybe<ResolversTypes['Todo']>>, ParentType, ContextType>;
+export type TokenResolvers<ContextType = any, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = {
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  makeTodo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationMakeTodoArgs, 'content'>>;
-  updateTodo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, '_id' | 'content'>>;
-  deleteTodo?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, '_id'>>;
-  updateStatus?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationUpdateStatusArgs, '_id' | 'status'>>;
+export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserData'] = ResolversParentTypes['UserData']> = {
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  todos?: Resolver<Maybe<Array<Maybe<ResolversTypes['Todo']>>>, ParentType, ContextType>;
+  comments?: Resolver<Maybe<Array<Maybe<ResolversTypes['Comment']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserDataErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['UserDataError'] = ResolversParentTypes['UserDataError']> = {
+  message?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LoginErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['LoginError'] = ResolversParentTypes['LoginError']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type LoginResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['LoginResponse'] = ResolversParentTypes['LoginResponse']> = {
+  __resolveType: TypeResolveFn<'Token' | 'LoginError', ParentType, ContextType>;
+};
+
+export type RegisterErrorResolvers<ContextType = any, ParentType extends ResolversParentTypes['RegisterError'] = ResolversParentTypes['RegisterError']> = {
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type RegisterResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['RegisterResponse'] = ResolversParentTypes['RegisterResponse']> = {
+  __resolveType: TypeResolveFn<'Token' | 'RegisterError', ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  Todo?: TodoResolvers<ContextType>;
+  Comment?: CommentResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Todo?: TodoResolvers<ContextType>;
+  Token?: TokenResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
+  UserData?: UserDataResolvers<ContextType>;
+  UserDataError?: UserDataErrorResolvers<ContextType>;
+  LoginError?: LoginErrorResolvers<ContextType>;
+  LoginResponse?: LoginResponseResolvers<ContextType>;
+  RegisterError?: RegisterErrorResolvers<ContextType>;
+  RegisterResponse?: RegisterResponseResolvers<ContextType>;
 };
 
 

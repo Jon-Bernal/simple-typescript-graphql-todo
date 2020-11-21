@@ -1,15 +1,8 @@
 // const ObjectID = require("mongodb").ObjectID;
 
-import { ObjectID } from "mongodb";
 import { ApolloError } from "apollo-server-express";
-
-import {
-  QueryResolvers,
-  MutationResolvers,
-  // TodoError,
-  // TodoResponse,
-  // TodoResolvers,
-} from "../../codeGenBE";
+import { ObjectID } from "mongodb";
+import { MutationResolvers, QueryResolvers, Status } from "../../codeGenBE";
 
 interface Resolvers {
   Query: QueryResolvers;
@@ -26,7 +19,7 @@ export const todoResolvers: Resolvers = {
 
         const todo = await db
           .db("todos")
-          .collection("mine")
+          .collection("todos")
           .findOne({ _id: new ObjectID(_id) });
 
         // if (!todo) {
@@ -54,7 +47,7 @@ export const todoResolvers: Resolvers = {
 
         const todos = await db
           .db("todos")
-          .collection("mine")
+          .collection("todos")
           .find({})
           .toArray();
 
@@ -85,13 +78,17 @@ export const todoResolvers: Resolvers = {
     },
   },
   Mutation: {
-    makeTodo: async (parent, args, context, info) => {
+    makeTodo: async (parent, { input }, context, info) => {
       try {
         const { db } = context;
-        const { content } = args;
+        const { userId, content } = input;
 
-        const data = { content: content, status: "INCOMPLETE" };
-        const dbRes = await db.db("todos").collection("mine").insertOne(data);
+        const data = {
+          userId: userId,
+          content: content,
+          status: Status.Incomplete,
+        };
+        const dbRes = await db.db("todos").collection("todos").insertOne(data);
 
         const newTodo = dbRes.ops[0];
 
@@ -116,7 +113,7 @@ export const todoResolvers: Resolvers = {
 
         const dbRes = await db
           .db("todos")
-          .collection("mine")
+          .collection("todos")
           .findOneAndUpdate(filter, updates, options);
 
         // return { __typename: "Todo", Todo: dbRes.value };
@@ -140,7 +137,7 @@ export const todoResolvers: Resolvers = {
 
         const dbRes = await db
           .db("todos")
-          .collection("mine")
+          .collection("todos")
           .findOneAndUpdate(filter, updates, options);
 
         if (!dbRes.value) {
@@ -167,7 +164,7 @@ export const todoResolvers: Resolvers = {
 
         const dbRes = await db
           .db("todos")
-          .collection("mine")
+          .collection("todos")
           .deleteOne({ _id: new ObjectID(_id) });
 
         if (dbRes?.deletedCount === 1) {

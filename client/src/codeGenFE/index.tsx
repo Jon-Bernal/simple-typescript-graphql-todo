@@ -12,22 +12,28 @@ export type Scalars = {
   Float: number;
 };
 
-export enum Status {
-  Complete = 'COMPLETE',
-  Incomplete = 'INCOMPLETE'
-}
-
-export type Todo = {
-  __typename?: 'Todo';
+export type Comment = {
+  __typename?: 'Comment';
   _id: Scalars['ID'];
-  content: Scalars['String'];
-  status: Status;
+  userId: Scalars['ID'];
+  comment: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  getComments: Array<Maybe<Comment>>;
+  getAllComments: Array<Maybe<Comment>>;
   todo: Todo;
   todos: Array<Maybe<Todo>>;
+  user: User;
+  users: Array<Maybe<User>>;
+  me: User;
+  getUserData: UserData;
+};
+
+
+export type QueryGetCommentsArgs = {
+  userId: Scalars['String'];
 };
 
 
@@ -35,17 +41,56 @@ export type QueryTodoArgs = {
   _id: Scalars['ID'];
 };
 
+
+export type QueryUserArgs = {
+  _id: Scalars['ID'];
+};
+
+
+export type QueryMeArgs = {
+  _id: Scalars['ID'];
+};
+
+
+export type QueryGetUserDataArgs = {
+  _id: Scalars['ID'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  makeComment: Comment;
+  updateComment: Comment;
+  deleteComment?: Maybe<Scalars['Boolean']>;
   makeTodo: Todo;
   updateTodo: Todo;
   deleteTodo: Scalars['Boolean'];
   updateStatus: Todo;
+  register: RegisterResponse;
+  login: LoginResponse;
+  logout: Scalars['Boolean'];
+};
+
+
+export type MutationMakeCommentArgs = {
+  userId: Scalars['String'];
+  comment: Scalars['String'];
+};
+
+
+export type MutationUpdateCommentArgs = {
+  _id: Scalars['ID'];
+  comment: Scalars['String'];
+};
+
+
+export type MutationDeleteCommentArgs = {
+  _id: Scalars['ID'];
+  userId: Scalars['ID'];
 };
 
 
 export type MutationMakeTodoArgs = {
-  content: Scalars['String'];
+  input: MakeTodoInput;
 };
 
 
@@ -65,6 +110,82 @@ export type MutationUpdateStatusArgs = {
   status: Status;
 };
 
+
+export type MutationRegisterArgs = {
+  input: UserRegisterInput;
+};
+
+
+export type MutationLoginArgs = {
+  input: UserLoginInput;
+};
+
+export enum Status {
+  Complete = 'COMPLETE',
+  Incomplete = 'INCOMPLETE'
+}
+
+export type Todo = {
+  __typename?: 'Todo';
+  _id: Scalars['ID'];
+  userId: Scalars['ID'];
+  content: Scalars['String'];
+  status: Status;
+};
+
+export type MakeTodoInput = {
+  userId: Scalars['String'];
+  content: Scalars['String'];
+};
+
+export type Token = {
+  __typename?: 'Token';
+  token: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  _id: Scalars['ID'];
+  username: Scalars['String'];
+};
+
+export type UserData = {
+  __typename?: 'UserData';
+  user?: Maybe<User>;
+  todos?: Maybe<Array<Maybe<Todo>>>;
+  comments?: Maybe<Array<Maybe<Comment>>>;
+};
+
+export type UserDataError = {
+  __typename?: 'UserDataError';
+  message?: Maybe<Scalars['String']>;
+};
+
+export type UserLoginInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type LoginError = {
+  __typename?: 'LoginError';
+  message: Scalars['String'];
+};
+
+export type LoginResponse = Token | LoginError;
+
+export type UserRegisterInput = {
+  username: Scalars['String'];
+  password: Scalars['String'];
+  confirmPassword: Scalars['String'];
+};
+
+export type RegisterError = {
+  __typename?: 'RegisterError';
+  message: Scalars['String'];
+};
+
+export type RegisterResponse = Token | RegisterError;
+
 export type TodoFragment = (
   { __typename?: 'Todo' }
   & Pick<Todo, '_id' | 'status' | 'content'>
@@ -80,8 +201,24 @@ export type DeleteTodoMutation = (
   & Pick<Mutation, 'deleteTodo'>
 );
 
+export type LoginMutationVariables = Exact<{
+  input: UserLoginInput;
+}>;
+
+
+export type LoginMutation = (
+  { __typename?: 'Mutation' }
+  & { login: (
+    { __typename: 'Token' }
+    & Pick<Token, 'token'>
+  ) | (
+    { __typename: 'LoginError' }
+    & Pick<LoginError, 'message'>
+  ) }
+);
+
 export type MakeTodoMutationVariables = Exact<{
-  content: Scalars['String'];
+  input: MakeTodoInput;
 }>;
 
 
@@ -90,6 +227,22 @@ export type MakeTodoMutation = (
   & { makeTodo: (
     { __typename?: 'Todo' }
     & TodoFragment
+  ) }
+);
+
+export type RegisterMutationVariables = Exact<{
+  input: UserRegisterInput;
+}>;
+
+
+export type RegisterMutation = (
+  { __typename?: 'Mutation' }
+  & { register: (
+    { __typename: 'Token' }
+    & Pick<Token, 'token'>
+  ) | (
+    { __typename: 'RegisterError' }
+    & Pick<RegisterError, 'message'>
   ) }
 );
 
@@ -182,9 +335,47 @@ export function useDeleteTodoMutation(baseOptions?: ApolloReactHooks.MutationHoo
 export type DeleteTodoMutationHookResult = ReturnType<typeof useDeleteTodoMutation>;
 export type DeleteTodoMutationResult = Apollo.MutationResult<DeleteTodoMutation>;
 export type DeleteTodoMutationOptions = Apollo.BaseMutationOptions<DeleteTodoMutation, DeleteTodoMutationVariables>;
+export const LoginDocument = gql`
+    mutation Login($input: UserLoginInput!) {
+  login(input: $input) {
+    __typename
+    ... on Token {
+      token
+    }
+    ... on LoginError {
+      message
+    }
+  }
+}
+    `;
+export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
+
+/**
+ * __useLoginMutation__
+ *
+ * To run a mutation, you first call `useLoginMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLoginMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [loginMutation, { data, loading, error }] = useLoginMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+        return ApolloReactHooks.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, baseOptions);
+      }
+export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
 export const MakeTodoDocument = gql`
-    mutation MakeTodo($content: String!) {
-  makeTodo(content: $content) {
+    mutation MakeTodo($input: MakeTodoInput!) {
+  makeTodo(input: $input) {
     ...todo
   }
 }
@@ -204,7 +395,7 @@ export type MakeTodoMutationFn = Apollo.MutationFunction<MakeTodoMutation, MakeT
  * @example
  * const [makeTodoMutation, { data, loading, error }] = useMakeTodoMutation({
  *   variables: {
- *      content: // value for 'content'
+ *      input: // value for 'input'
  *   },
  * });
  */
@@ -214,6 +405,44 @@ export function useMakeTodoMutation(baseOptions?: ApolloReactHooks.MutationHookO
 export type MakeTodoMutationHookResult = ReturnType<typeof useMakeTodoMutation>;
 export type MakeTodoMutationResult = Apollo.MutationResult<MakeTodoMutation>;
 export type MakeTodoMutationOptions = Apollo.BaseMutationOptions<MakeTodoMutation, MakeTodoMutationVariables>;
+export const RegisterDocument = gql`
+    mutation Register($input: UserRegisterInput!) {
+  register(input: $input) {
+    __typename
+    ... on Token {
+      token
+    }
+    ... on RegisterError {
+      message
+    }
+  }
+}
+    `;
+export type RegisterMutationFn = Apollo.MutationFunction<RegisterMutation, RegisterMutationVariables>;
+
+/**
+ * __useRegisterMutation__
+ *
+ * To run a mutation, you first call `useRegisterMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerMutation, { data, loading, error }] = useRegisterMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRegisterMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RegisterMutation, RegisterMutationVariables>) {
+        return ApolloReactHooks.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument, baseOptions);
+      }
+export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
+export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
+export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
 export const UpdateStatusDocument = gql`
     mutation UpdateStatus($id: ID!, $status: Status!) {
   updateStatus(_id: $id, status: $status) {

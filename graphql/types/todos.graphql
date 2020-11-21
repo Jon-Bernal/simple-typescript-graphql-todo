@@ -11,6 +11,7 @@ enum Status {
 
 type Todo {
   _id: ID!
+  userId: ID!
   content: String!
   status: Status!
 }
@@ -35,13 +36,18 @@ type Todo {
 
 # union TodoArrResponse = TodoArr | TodoError
 
+input MakeTodoInput {
+  userId: String!
+  content: String!
+}
+
 type Query {
   todo(_id: ID!): Todo!
   todos: [Todo]!
 }
 
 type Mutation {
-  makeTodo(content: String!): Todo!
+  makeTodo(input: MakeTodoInput!): Todo!
   updateTodo(_id: ID!, content: String!): Todo!
   deleteTodo(_id: ID!): Boolean!
   updateStatus(_id: ID!, status: Status!): Todo!

@@ -11,10 +11,10 @@ import { BiTrash, BiPencil } from "react-icons/bi";
 
 import {
   Todo,
-  Status,
-  useDeleteTodoMutation,
-  useUpdateStatusMutation,
-  useUpdateTodoMutation,
+  //   Status,
+  //   useDeleteTodoMutation,
+  //   useUpdateStatusMutation,
+  //   useUpdateTodoMutation,
 } from "../codeGenFE/index";
 import Checkbox from "./Checkbox";
 
@@ -29,56 +29,56 @@ const SingleTodo: FC<Props> = ({ todo, setTodoID }) => {
   const [updateMode, setUpdateMode] = useState(false);
   const [updateTodoContent, setUpdateTodoContent] = useState(content);
 
-  const [deleteTodoMutation, { loading, error }] = useDeleteTodoMutation({
-    variables: {
-      id: _id,
-    },
-    update(cache, { data }) {
-      cache.modify({
-        fields: {
-          todos() {
-            if (data) {
-              cache.evict({ id: _id });
-              cache.gc();
-            }
-          },
-        },
-      });
-    },
-    onError(error) {
-      // Run error dispatch or retry logic here
-    },
-  });
+  // const [deleteTodoMutation, { loading, error }] = useDeleteTodoMutation({
+  //   variables: {
+  //     id: _id,
+  //   },
+  //   update(cache, { data }) {
+  //     cache.modify({
+  //       fields: {
+  //         todos() {
+  //           if (data) {
+  //             cache.evict({ id: _id });
+  //             cache.gc();
+  //           }
+  //         },
+  //       },
+  //     });
+  //   },
+  //   onError(error) {
+  //     // Run error dispatch or retry logic here
+  //   },
+  // });
 
-  function delTodo() {
-    deleteTodoMutation();
-  }
+  // function delTodo() {
+  //   deleteTodoMutation();
+  // }
 
-  const [
-    updateTodoMutation,
-    { error: updateTodoError },
-  ] = useUpdateTodoMutation({
-    variables: {
-      id: _id,
-      content: updateTodoContent,
-    },
-    update(cache, { data }) {
-      setUpdateMode(false);
-      console.log("data :>> ", data);
-    },
-    onError(error) {
-      // dispatch error here
-      console.log("error :>> ", error);
-    },
-  });
+  // const [
+  //   updateTodoMutation,
+  //   { error: updateTodoError },
+  // ] = useUpdateTodoMutation({
+  //   variables: {
+  //     id: _id,
+  //     content: updateTodoContent,
+  //   },
+  //   update(cache, { data }) {
+  //     setUpdateMode(false);
+  //     console.log("data :>> ", data);
+  //   },
+  //   onError(error) {
+  //     // dispatch error here
+  //     console.log("error :>> ", error);
+  //   },
+  // });
 
-  if (loading) {
-    return <span>loading...</span>;
-  }
+  // if (loading) {
+  //   return <span>loading...</span>;
+  // }
 
-  if (error) {
-    return <span>error</span>;
-  }
+  // if (error) {
+  //   return <span>error</span>;
+  // }
 
   if (updateMode) {
     return (
@@ -92,7 +92,7 @@ const SingleTodo: FC<Props> = ({ todo, setTodoID }) => {
             setUpdateTodoContent(e.target.value);
           }}
         />
-        <button onClick={() => updateTodoMutation()}></button>
+        {/* <button onClick={() => updateTodoMutation()}></button> */}
       </div>
     );
   }
@@ -102,9 +102,9 @@ const SingleTodo: FC<Props> = ({ todo, setTodoID }) => {
       <p>
         <Checkbox status={status} id={_id} />
         <span onClick={() => setTodoID(_id)}>{content}</span>
-        <span onClick={delTodo}>
-          <BiTrash />
-        </span>
+        {/* <span onClick={delTodo}> */}
+        {/* <BiTrash /> */}
+        {/* </span> */}
         <span onClick={() => setUpdateMode(true)}>
           <BiPencil />
         </span>

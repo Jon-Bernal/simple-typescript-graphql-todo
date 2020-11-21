@@ -1,11 +1,14 @@
-import React, { FC, useState, ChangeEvent } from "react";
+import React, { ChangeEvent, FC, useState } from "react";
 import { TodoFragmentDoc, useMakeTodoMutation } from "../codeGenFE";
 
 const MakeTodo: FC = () => {
   const [todoText, setTodoText] = useState("");
   const [makeTodoMutation, { loading, error }] = useMakeTodoMutation({
     variables: {
-      content: todoText, // value for 'content'
+      input: {
+        content: todoText, // value for 'content'
+        userId: "asdfoiwenfg",
+      },
     },
     update(cache, { data }) {
       cache.modify({

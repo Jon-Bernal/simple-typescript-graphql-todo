@@ -3,7 +3,9 @@
 // array
 const { mergeResolvers } = require("@graphql-tools/merge");
 
+import { commentResolvers } from "./commentResolvers";
 import { todoResolvers } from "./todoResolvers";
-const combinedResolvers = [todoResolvers];
+import { userResolvers } from "./userResolvers";
+const combinedResolvers = [todoResolvers, userResolvers, commentResolvers];
 
 export const resolvers = mergeResolvers(combinedResolvers);

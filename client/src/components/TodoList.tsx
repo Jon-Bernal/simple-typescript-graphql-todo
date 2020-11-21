@@ -7,24 +7,24 @@ interface Props {
 }
 
 const TodoList: FC<Props> = ({ setTodoID }) => {
-  const { data, loading, error } = useFetchAllTodosQuery();
+  // const { data, loading, error } = useFetchAllTodosQuery();
 
-  if (loading) {
-    console.log("loading", loading);
-    return <div>...loading</div>;
-  }
-  if (error) {
-    console.log({ error });
-    return <div>ERROR</div>;
-  }
+  // if (loading) {
+  //   console.log("loading", loading);
+  //   return <div>...loading</div>;
+  // }
+  // if (error) {
+  //   console.log({ error });
+  //   return <div>ERROR</div>;
+  // }
 
   return (
     <div>
-      {data?.todos?.map((t) => {
+      {/* {data?.todos?.map((t) => {
         // if (t?.__typename === "Todo") {
         return <SingleTodo todo={t!} key={t!._id} setTodoID={setTodoID} />;
         // }
-      })}
+      })} */}
     </div>
   );
 };

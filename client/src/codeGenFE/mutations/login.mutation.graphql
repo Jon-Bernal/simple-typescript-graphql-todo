@@ -1,0 +1,11 @@
+mutation Login($input: UserLoginInput!) {
+  login(input: $input) {
+    __typename
+    ... on Token {
+      token
+    }
+    ... on LoginError {
+      message
+    }
+  }
+}

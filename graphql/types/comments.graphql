@@ -1,0 +1,22 @@
+type Comment {
+  _id: ID!
+  userId: ID!
+  comment: String!
+}
+
+type Query {
+  # read comments
+  getComments(userId: String!): [Comment]!
+  getAllComments: [Comment]!
+}
+
+type Mutation {
+  # make comments
+  makeComment(userId: String!, comment: String!): Comment!
+
+  # update comments
+  updateComment(_id: ID!, comment: String!): Comment!
+
+  # delete comments
+  deleteComment(_id: ID!, userId: ID!): Boolean
+}
