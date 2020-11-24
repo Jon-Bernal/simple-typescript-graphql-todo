@@ -120,6 +120,11 @@ export type MutationLoginArgs = {
   input: UserLoginInput;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  newComment: Comment;
+};
+
 export enum Status {
   Complete = 'COMPLETE',
   Incomplete = 'INCOMPLETE'

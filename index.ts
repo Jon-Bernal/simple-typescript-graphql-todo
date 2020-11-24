@@ -1,10 +1,15 @@
 import * as dotenv from "dotenv";
 import cors from "cors";
+import http from "http";
 
 // const jwt = require("jsonwebtoken");
 const express = require("express");
 // const mongoose = require("mongoose");
-const { ApolloServer, AuthenticationError } = require("apollo-server-express");
+const {
+  ApolloServer,
+  AuthenticationError,
+  PubSub,
+} = require("apollo-server-express");
 import { typeDefs } from "./graphql/typeDefs";
 
 import { resolvers } from "./graphql/resolvers";
@@ -77,26 +82,48 @@ app.use(bodyParser.json());
 //     }
 //   }
 // };
+
+const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   playground: {
     endpoint: "/graphql",
   },
-  context: async ({ req }: any) => {
+  context: async ({ req, connection }: any) => {
+    if (connection) {
+      console.log("in connection if block");
+      // console.log("connection.pubsub", connection.pubsub);
+      connection.pubsub = pubsub;
+      console.log("connection.context", connection);
+      // return connection;
+      return { connection };
+      // return connection.context;
+    } else {
+      return { db, secret: process.env.SECRET, req, pubsub };
+    }
     // console.log("req.body", req);
     // const user = await isUserFound(req);
     // console.log({ user });
     // return { db, user, secret: process.env.SECRET, req };
-    return { db, secret: process.env.SECRET, req };
     // return {};
   },
 });
 server.applyMiddleware({ app }); //import
 
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
+
 try {
   const port = process.env.Port || 5000;
-  app.listen(port, () => console.log(`Server running on port ${port}`));
+  // app.listen(port, () => console.log(`Server running on port ${port}`));
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(
+      `Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
+    );
+  });
 } catch (err) {
   console.log("err", err);
 }
