@@ -113,4 +113,7 @@ export const commentResolvers: Resolvers = {
       }
     },
   },
+  // Subscription: {
+
+  // }
 };

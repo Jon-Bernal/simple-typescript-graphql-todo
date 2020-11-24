@@ -60,7 +60,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   makeComment: Comment;
   updateComment: Comment;
-  deleteComment?: Maybe<Scalars['Boolean']>;
+  deleteComment: Scalars['Boolean'];
   makeTodo: TodoRes;
   updateTodo: Todo;
   deleteTodo: Scalars['Boolean'];

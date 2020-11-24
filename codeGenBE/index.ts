@@ -68,7 +68,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   makeComment: Comment;
   updateComment: Comment;
-  deleteComment?: Maybe<Scalars['Boolean']>;
+  deleteComment: Scalars['Boolean'];
   makeTodo: TodoRes;
   updateTodo: Todo;
   deleteTodo: Scalars['Boolean'];
@@ -385,7 +385,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   makeComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationMakeCommentArgs, 'userId' | 'comment'>>;
   updateComment?: Resolver<ResolversTypes['Comment'], ParentType, ContextType, RequireFields<MutationUpdateCommentArgs, '_id' | 'comment'>>;
-  deleteComment?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteCommentArgs, '_id' | 'userId'>>;
+  deleteComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCommentArgs, '_id' | 'userId'>>;
   makeTodo?: Resolver<ResolversTypes['TodoRes'], ParentType, ContextType, RequireFields<MutationMakeTodoArgs, 'input'>>;
   updateTodo?: Resolver<ResolversTypes['Todo'], ParentType, ContextType, RequireFields<MutationUpdateTodoArgs, '_id' | 'content'>>;
   deleteTodo?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTodoArgs, '_id'>>;

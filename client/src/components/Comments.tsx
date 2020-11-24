@@ -14,29 +14,6 @@ const Comments: FC<Props> = ({ userId }) => {
   const { data, loading, error } = useGetAllCommentsQuery({});
 
   const [deleteCommentMutation, { data: delData }] = useDeleteCommentMutation({
-    update(cache, { data }) {
-      console.log("data :>> ", data);
-      const existingComments: any = cache.readQuery({
-        query: GetAllCommentsDocument,
-      });
-      console.log("existingComments", existingComments);
-      // const newComments = existingComments!.Comments((c: any) => (c._id !== Comment._id))
-      const newComments = existingComments.filter(
-        (c: any) => c.userId !== userId
-      );
-      console.log("newComments", newComments);
-      // cache.modify({
-      //   fields: {
-      //     deleteComment() {
-
-      //       if (data) {
-      //         cache.evict({ id: id });
-      //         cache.gc();
-      //       }
-      //     },
-      //   },
-      // });
-    },
     onError(error) {
       console.log("error :>> ", error);
     },
@@ -47,6 +24,17 @@ const Comments: FC<Props> = ({ userId }) => {
       variables: {
         id: `${id}`,
         userId,
+      },
+      update(cache, { data }) {
+        // also checkout https://dev.to/lucis/update-apollo-cache-after-a-mutation-and-get-instant-benefits-on-your-ui-1c3b
+        cache.modify({
+          fields: {
+            getAllComments() {
+              cache.evict({ id: id });
+              cache.gc();
+            },
+          },
+        });
       },
     });
   }

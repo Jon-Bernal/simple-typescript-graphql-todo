@@ -1,12 +1,15 @@
 import * as dotenv from "dotenv";
 import cors from "cors";
-
+import http from "http";
 // const jwt = require("jsonwebtoken");
 const express = require("express");
 // const mongoose = require("mongoose");
-const { ApolloServer, AuthenticationError } = require("apollo-server-express");
+const {
+  ApolloServer,
+  AuthenticationError,
+  PubSub,
+} = require("apollo-server-express");
 import { typeDefs } from "./graphql/typeDefs";
-
 import { resolvers } from "./graphql/resolvers";
 // const models = require("./mongooseModels");
 
@@ -77,6 +80,7 @@ app.use(bodyParser.json());
 //     }
 //   }
 // };
+const pubsub = new PubSub();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
@@ -84,19 +88,32 @@ const server = new ApolloServer({
     endpoint: "/graphql",
   },
   context: async ({ req }: any) => {
+    // if (connection) {
+    // return connection.context;
+    // } else {
     // console.log("req.body", req);
     // const user = await isUserFound(req);
     // console.log({ user });
     // return { db, user, secret: process.env.SECRET, req };
-    return { db, secret: process.env.SECRET, req };
     // return {};
+    // }
+    return { db, secret: process.env.SECRET, req, pubsub };
   },
 });
 server.applyMiddleware({ app }); //import
 
+// const httpServer = http.createServer(app);
+// server.installSubscriptionHandlers(httpServer);
+
 try {
   const port = process.env.Port || 5000;
   app.listen(port, () => console.log(`Server running on port ${port}`));
+  // httpServer.listen(port, () => {
+  //   console.log(`Server running on port ${port}`);
+  //   console.log(
+  //     `Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
+  //   );
+  // });
 } catch (err) {
   console.log("err", err);
 }

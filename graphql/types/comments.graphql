@@ -18,5 +18,5 @@ type Mutation {
   updateComment(_id: ID!, comment: String!): Comment!
 
   # delete comments
-  deleteComment(_id: ID!, userId: ID!): Boolean
+  deleteComment(_id: ID!, userId: ID!): Boolean!
 }
