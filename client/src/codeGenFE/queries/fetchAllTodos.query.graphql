@@ -1,7 +1,11 @@
-query FetchAllTodos {
-  todos {
-    _id
-    status
-    content
+query FetchAllTodos($userId: ID!) {
+  todos(userId: $userId) {
+    errors {
+      source
+      message
+    }
+    todos {
+      ...todo
+    }
   }
 }

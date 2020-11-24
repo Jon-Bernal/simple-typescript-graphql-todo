@@ -1,7 +1,5 @@
 mutation UpdateStatus($id: ID!, $status: Status!) {
   updateStatus(_id: $id, status: $status) {
-    _id
-    status
-    content
+    ...todo
   }
 }

@@ -5,36 +5,26 @@ enum Status {
   INCOMPLETE
 }
 
-# interface Error {
-#   genericMessage: String
-# }
-
 type Todo {
   _id: ID!
   userId: ID!
   content: String!
   status: Status!
 }
+type TodoError {
+  source: String!
+  message: String!
+}
 
-# type TodoError implements Error {
-# type TodoError {
-#   # genericMessage: String
-#   todoError: String
-# }
+type TodoRes {
+  errors: [TodoError]
+  todo: Todo
+}
 
-# type TodoDeleteSuccess implements Error {
-#   genericMessage: String
-#   deleteSuccess: String
-# }
-
-# union TodoResponse = Todo | TodoError | TodoDeleteSuccess
-# union TodoResponse = Todo | TodoError
-
-# type TodoArr {
-#   Todos: [Todo]!
-# }
-
-# union TodoArrResponse = TodoArr | TodoError
+type TodosRes {
+  errors: [TodoError]
+  todos: [Todo]
+}
 
 input MakeTodoInput {
   userId: String!
@@ -42,12 +32,12 @@ input MakeTodoInput {
 }
 
 type Query {
-  todo(_id: ID!): Todo!
-  todos: [Todo]!
+  todo(userId: ID!, _id: ID!): Todo!
+  todos(userId: ID!): TodosRes!
 }
 
 type Mutation {
-  makeTodo(input: MakeTodoInput!): Todo!
+  makeTodo(input: MakeTodoInput!): TodoRes!
   updateTodo(_id: ID!, content: String!): Todo!
   deleteTodo(_id: ID!): Boolean!
   updateStatus(_id: ID!, status: Status!): Todo!

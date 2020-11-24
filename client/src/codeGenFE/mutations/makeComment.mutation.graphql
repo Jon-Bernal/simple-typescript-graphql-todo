@@ -1,0 +1,5 @@
+mutation MakeComment($userId: String!, $comment: String!) {
+  makeComment(userId: $userId, comment: $comment) {
+    ...comment
+  }
+}

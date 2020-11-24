@@ -1,7 +1,5 @@
 mutation UpdateTodo($id: ID!, $content: String!) {
   updateTodo(_id: $id, content: $content) {
-    _id
-    status
-    content
+    ...todo
   }
 }

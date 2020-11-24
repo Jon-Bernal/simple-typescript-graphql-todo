@@ -1,29 +1,36 @@
 import React, { ChangeEvent, FC, useState } from "react";
 import { TodoFragmentDoc, useMakeTodoMutation } from "../codeGenFE";
 
-const MakeTodo: FC = () => {
+interface Props {
+  userId: string;
+}
+
+const MakeTodo: FC<Props> = ({ userId }) => {
   const [todoText, setTodoText] = useState("");
   const [makeTodoMutation, { loading, error }] = useMakeTodoMutation({
     variables: {
       input: {
         content: todoText, // value for 'content'
-        userId: "asdfoiwenfg",
+        userId: userId,
       },
     },
     update(cache, { data }) {
       cache.modify({
         fields: {
           todos(existingTodos = []) {
+            console.log("existingTodos :>> ", existingTodos);
             const newTodoRef = cache.writeFragment({
-              data: data?.makeTodo,
+              data: data?.makeTodo?.todo,
               fragment: TodoFragmentDoc,
             });
-            return [...existingTodos, newTodoRef];
+            return [...existingTodos?.todos, newTodoRef];
           },
         },
       });
+      setTodoText("");
     },
     onError(error) {
+      console.log("error :>> ", error);
       // Run error dispatch or retry logic here
     },
   });

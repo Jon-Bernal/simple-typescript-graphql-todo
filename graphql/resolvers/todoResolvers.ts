@@ -3,6 +3,7 @@
 import { ApolloError } from "apollo-server-express";
 import { ObjectID } from "mongodb";
 import { MutationResolvers, QueryResolvers, Status } from "../../codeGenBE";
+import { errorFormatter } from "../../utils/errorFormatter";
 
 interface Resolvers {
   Query: QueryResolvers;
@@ -12,7 +13,7 @@ interface Resolvers {
 
 export const todoResolvers: Resolvers = {
   Query: {
-    todo: async (parent, { _id }, { db }, info) => {
+    todo: async (parent, { _id, userId }, { db }, info) => {
       try {
         // const { _id } = args;
         // const { db } = context;
@@ -30,6 +31,8 @@ export const todoResolvers: Resolvers = {
         // }
 
         // return { __typename: "Todo", ...todo };
+
+        // check if todo belongs to this user and if not throw error
         return todo;
       } catch (error) {
         console.log("error :>> ", error);
@@ -40,40 +43,23 @@ export const todoResolvers: Resolvers = {
         return "error";
       }
     },
-    todos: async (parent, args, { db }, info) => {
+    todos: async (parent, { userId }, { db }, info) => {
       try {
-        // const { _id } = args;
-        // const { db } = context;
-
         const todos = await db
           .db("todos")
           .collection("todos")
-          .find({})
+          .find({ userId: userId })
           .toArray();
 
-        // if (!todos) {
-        //   return {
-        //     __typename: "TodoError",
-        //     todoError: "Couldn't add todo right now please try again.",
-        //   };
-        // }
-        console.log("typeof todos :>> ", todos);
+        if (!todos) {
+          return errorFormatter("noTodos", "sorry couldn't find any todos");
+        }
+        console.log("todos :>> ", todos);
 
-        // if (typeof todos === "object") {
-        // if ("todo" in todos) {
-        // if ("todoError" in todos) {
-        // if (!todos || todos.length() === 0) {
-        //   return { __typename: "TodoError", todoError: "NEW BS ERROR" };
-        // } else {
-        //   return { __typename: "Todo", ...todos };
-        // }
-        return todos;
+        return { todos };
       } catch (error) {
         console.log("error :>> ", error);
-        return {
-          __typename: "TodoError",
-          todoError: "Something went wrong fetching todos.",
-        };
+        return errorFormatter("internal", "something went wrong internally");
       }
     },
   },
@@ -83,23 +69,27 @@ export const todoResolvers: Resolvers = {
         const { db } = context;
         const { userId, content } = input;
 
+        if (content === "" || typeof content !== "string") {
+          return errorFormatter("input", "Please enter content");
+        }
         const data = {
           userId: userId,
           content: content,
           status: Status.Incomplete,
         };
         const dbRes = await db.db("todos").collection("todos").insertOne(data);
-
-        const newTodo = dbRes.ops[0];
-
-        // return { __typename: "Todo", newTodo };
-        return newTodo;
+        console.log("dbRes", dbRes);
+        if (dbRes.insertedCount === 1) {
+          const newTodo = dbRes.ops[0];
+          return { todo: newTodo };
+        }
+        return errorFormatter(
+          "DB",
+          "Todo Couldn't be added at this time, sorry"
+        );
       } catch (error) {
         console.log("error :>> ", error);
-        // return {
-        //   __typename: "TodoError",
-        //   genericMessage: "Something went wrong with makeTodo",
-        // };
+        return errorFormatter("internal", "Something went wrong internally");
       }
     },
     updateTodo: async (parent, args, context, info) => {
@@ -151,10 +141,6 @@ export const todoResolvers: Resolvers = {
       } catch (error) {
         console.log("IN CATCH");
         console.log("error :>> ", error);
-        // return {
-        //   __typename: "TodoError",
-        //   genericMessage: "Something went wrong",
-        // };
       }
     },
     deleteTodo: async (parent, { _id }, { db }, info) => {

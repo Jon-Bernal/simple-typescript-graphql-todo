@@ -1,0 +1,6 @@
+query Me($id: ID!) {
+  me(_id: $id) {
+    _id
+    username
+  }
+}

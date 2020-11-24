@@ -24,11 +24,10 @@ export type Query = {
   getComments: Array<Maybe<Comment>>;
   getAllComments: Array<Maybe<Comment>>;
   todo: Todo;
-  todos: Array<Maybe<Todo>>;
+  todos: TodosRes;
   user: User;
   users: Array<Maybe<User>>;
   me: User;
-  getUserData: UserData;
 };
 
 
@@ -38,7 +37,13 @@ export type QueryGetCommentsArgs = {
 
 
 export type QueryTodoArgs = {
+  userId: Scalars['ID'];
   _id: Scalars['ID'];
+};
+
+
+export type QueryTodosArgs = {
+  userId: Scalars['ID'];
 };
 
 
@@ -51,17 +56,12 @@ export type QueryMeArgs = {
   _id: Scalars['ID'];
 };
 
-
-export type QueryGetUserDataArgs = {
-  _id: Scalars['ID'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   makeComment: Comment;
   updateComment: Comment;
   deleteComment?: Maybe<Scalars['Boolean']>;
-  makeTodo: Todo;
+  makeTodo: TodoRes;
   updateTodo: Todo;
   deleteTodo: Scalars['Boolean'];
   updateStatus: Todo;
@@ -133,6 +133,24 @@ export type Todo = {
   status: Status;
 };
 
+export type TodoError = {
+  __typename?: 'TodoError';
+  source: Scalars['String'];
+  message: Scalars['String'];
+};
+
+export type TodoRes = {
+  __typename?: 'TodoRes';
+  errors?: Maybe<Array<Maybe<TodoError>>>;
+  todo?: Maybe<Todo>;
+};
+
+export type TodosRes = {
+  __typename?: 'TodosRes';
+  errors?: Maybe<Array<Maybe<TodoError>>>;
+  todos?: Maybe<Array<Maybe<Todo>>>;
+};
+
 export type MakeTodoInput = {
   userId: Scalars['String'];
   content: Scalars['String'];
@@ -147,18 +165,6 @@ export type User = {
   __typename?: 'User';
   _id: Scalars['ID'];
   username: Scalars['String'];
-};
-
-export type UserData = {
-  __typename?: 'UserData';
-  user?: Maybe<User>;
-  todos?: Maybe<Array<Maybe<Todo>>>;
-  comments?: Maybe<Array<Maybe<Comment>>>;
-};
-
-export type UserDataError = {
-  __typename?: 'UserDataError';
-  message?: Maybe<Scalars['String']>;
 };
 
 export type UserLoginInput = {
@@ -186,9 +192,25 @@ export type RegisterError = {
 
 export type RegisterResponse = Token | RegisterError;
 
+export type CommentFragment = (
+  { __typename?: 'Comment' }
+  & Pick<Comment, '_id' | 'userId' | 'comment'>
+);
+
 export type TodoFragment = (
   { __typename?: 'Todo' }
-  & Pick<Todo, '_id' | 'status' | 'content'>
+  & Pick<Todo, '_id' | 'userId' | 'status' | 'content'>
+);
+
+export type DeleteCommentMutationVariables = Exact<{
+  id: Scalars['ID'];
+  userId: Scalars['ID'];
+}>;
+
+
+export type DeleteCommentMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteComment'>
 );
 
 export type DeleteTodoMutationVariables = Exact<{
@@ -217,6 +239,28 @@ export type LoginMutation = (
   ) }
 );
 
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
+);
+
+export type MakeCommentMutationVariables = Exact<{
+  userId: Scalars['String'];
+  comment: Scalars['String'];
+}>;
+
+
+export type MakeCommentMutation = (
+  { __typename?: 'Mutation' }
+  & { makeComment: (
+    { __typename?: 'Comment' }
+    & CommentFragment
+  ) }
+);
+
 export type MakeTodoMutationVariables = Exact<{
   input: MakeTodoInput;
 }>;
@@ -225,8 +269,14 @@ export type MakeTodoMutationVariables = Exact<{
 export type MakeTodoMutation = (
   { __typename?: 'Mutation' }
   & { makeTodo: (
-    { __typename?: 'Todo' }
-    & TodoFragment
+    { __typename?: 'TodoRes' }
+    & { errors?: Maybe<Array<Maybe<(
+      { __typename?: 'TodoError' }
+      & Pick<TodoError, 'source' | 'message'>
+    )>>>, todo?: Maybe<(
+      { __typename?: 'Todo' }
+      & TodoFragment
+    )> }
   ) }
 );
 
@@ -246,6 +296,20 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdateCommentMutationVariables = Exact<{
+  id: Scalars['ID'];
+  comment: Scalars['String'];
+}>;
+
+
+export type UpdateCommentMutation = (
+  { __typename?: 'Mutation' }
+  & { updateComment: (
+    { __typename?: 'Comment' }
+    & CommentFragment
+  ) }
+);
+
 export type UpdateStatusMutationVariables = Exact<{
   id: Scalars['ID'];
   status: Status;
@@ -256,7 +320,7 @@ export type UpdateStatusMutation = (
   { __typename?: 'Mutation' }
   & { updateStatus: (
     { __typename?: 'Todo' }
-    & Pick<Todo, '_id' | 'status' | 'content'>
+    & TodoFragment
   ) }
 );
 
@@ -270,23 +334,32 @@ export type UpdateTodoMutation = (
   { __typename?: 'Mutation' }
   & { updateTodo: (
     { __typename?: 'Todo' }
-    & Pick<Todo, '_id' | 'status' | 'content'>
+    & TodoFragment
   ) }
 );
 
-export type FetchAllTodosQueryVariables = Exact<{ [key: string]: never; }>;
+export type FetchAllTodosQueryVariables = Exact<{
+  userId: Scalars['ID'];
+}>;
 
 
 export type FetchAllTodosQuery = (
   { __typename?: 'Query' }
-  & { todos: Array<Maybe<(
-    { __typename?: 'Todo' }
-    & Pick<Todo, '_id' | 'status' | 'content'>
-  )>> }
+  & { todos: (
+    { __typename?: 'TodosRes' }
+    & { errors?: Maybe<Array<Maybe<(
+      { __typename?: 'TodoError' }
+      & Pick<TodoError, 'source' | 'message'>
+    )>>>, todos?: Maybe<Array<Maybe<(
+      { __typename?: 'Todo' }
+      & TodoFragment
+    )>>> }
+  ) }
 );
 
 export type FetchTodoQueryVariables = Exact<{
   id: Scalars['ID'];
+  userId: Scalars['ID'];
 }>;
 
 
@@ -294,17 +367,117 @@ export type FetchTodoQuery = (
   { __typename?: 'Query' }
   & { todo: (
     { __typename?: 'Todo' }
-    & Pick<Todo, '_id' | 'status' | 'content'>
+    & TodoFragment
   ) }
 );
 
+export type GetAllCommentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllCommentsQuery = (
+  { __typename?: 'Query' }
+  & { getAllComments: Array<Maybe<(
+    { __typename?: 'Comment' }
+    & CommentFragment
+  )>> }
+);
+
+export type GetCommentsQueryVariables = Exact<{
+  userId: Scalars['String'];
+}>;
+
+
+export type GetCommentsQuery = (
+  { __typename?: 'Query' }
+  & { getComments: Array<Maybe<(
+    { __typename?: 'Comment' }
+    & CommentFragment
+  )>> }
+);
+
+export type MeQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type MeQuery = (
+  { __typename?: 'Query' }
+  & { me: (
+    { __typename?: 'User' }
+    & Pick<User, '_id' | 'username'>
+  ) }
+);
+
+export type UserQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type UserQuery = (
+  { __typename?: 'Query' }
+  & { user: (
+    { __typename?: 'User' }
+    & Pick<User, '_id' | 'username'>
+  ) }
+);
+
+export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type UsersQuery = (
+  { __typename?: 'Query' }
+  & { users: Array<Maybe<(
+    { __typename?: 'User' }
+    & Pick<User, '_id' | 'username'>
+  )>> }
+);
+
+export const CommentFragmentDoc = gql`
+    fragment comment on Comment {
+  _id
+  userId
+  comment
+}
+    `;
 export const TodoFragmentDoc = gql`
     fragment todo on Todo {
   _id
+  userId
   status
   content
 }
     `;
+export const DeleteCommentDocument = gql`
+    mutation DeleteComment($id: ID!, $userId: ID!) {
+  deleteComment(_id: $id, userId: $userId)
+}
+    `;
+export type DeleteCommentMutationFn = Apollo.MutationFunction<DeleteCommentMutation, DeleteCommentMutationVariables>;
+
+/**
+ * __useDeleteCommentMutation__
+ *
+ * To run a mutation, you first call `useDeleteCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCommentMutation, { data, loading, error }] = useDeleteCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useDeleteCommentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCommentMutation, DeleteCommentMutationVariables>) {
+        return ApolloReactHooks.useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(DeleteCommentDocument, baseOptions);
+      }
+export type DeleteCommentMutationHookResult = ReturnType<typeof useDeleteCommentMutation>;
+export type DeleteCommentMutationResult = Apollo.MutationResult<DeleteCommentMutation>;
+export type DeleteCommentMutationOptions = Apollo.BaseMutationOptions<DeleteCommentMutation, DeleteCommentMutationVariables>;
 export const DeleteTodoDocument = gql`
     mutation DeleteTodo($id: ID!) {
   deleteTodo(_id: $id)
@@ -373,10 +546,78 @@ export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOpti
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
 export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
 export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        return ApolloReactHooks.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, baseOptions);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
+export const MakeCommentDocument = gql`
+    mutation MakeComment($userId: String!, $comment: String!) {
+  makeComment(userId: $userId, comment: $comment) {
+    ...comment
+  }
+}
+    ${CommentFragmentDoc}`;
+export type MakeCommentMutationFn = Apollo.MutationFunction<MakeCommentMutation, MakeCommentMutationVariables>;
+
+/**
+ * __useMakeCommentMutation__
+ *
+ * To run a mutation, you first call `useMakeCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMakeCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [makeCommentMutation, { data, loading, error }] = useMakeCommentMutation({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      comment: // value for 'comment'
+ *   },
+ * });
+ */
+export function useMakeCommentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MakeCommentMutation, MakeCommentMutationVariables>) {
+        return ApolloReactHooks.useMutation<MakeCommentMutation, MakeCommentMutationVariables>(MakeCommentDocument, baseOptions);
+      }
+export type MakeCommentMutationHookResult = ReturnType<typeof useMakeCommentMutation>;
+export type MakeCommentMutationResult = Apollo.MutationResult<MakeCommentMutation>;
+export type MakeCommentMutationOptions = Apollo.BaseMutationOptions<MakeCommentMutation, MakeCommentMutationVariables>;
 export const MakeTodoDocument = gql`
     mutation MakeTodo($input: MakeTodoInput!) {
   makeTodo(input: $input) {
-    ...todo
+    errors {
+      source
+      message
+    }
+    todo {
+      ...todo
+    }
   }
 }
     ${TodoFragmentDoc}`;
@@ -443,15 +684,46 @@ export function useRegisterMutation(baseOptions?: ApolloReactHooks.MutationHookO
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const UpdateCommentDocument = gql`
+    mutation UpdateComment($id: ID!, $comment: String!) {
+  updateComment(_id: $id, comment: $comment) {
+    ...comment
+  }
+}
+    ${CommentFragmentDoc}`;
+export type UpdateCommentMutationFn = Apollo.MutationFunction<UpdateCommentMutation, UpdateCommentMutationVariables>;
+
+/**
+ * __useUpdateCommentMutation__
+ *
+ * To run a mutation, you first call `useUpdateCommentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCommentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCommentMutation, { data, loading, error }] = useUpdateCommentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      comment: // value for 'comment'
+ *   },
+ * });
+ */
+export function useUpdateCommentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCommentMutation, UpdateCommentMutationVariables>) {
+        return ApolloReactHooks.useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(UpdateCommentDocument, baseOptions);
+      }
+export type UpdateCommentMutationHookResult = ReturnType<typeof useUpdateCommentMutation>;
+export type UpdateCommentMutationResult = Apollo.MutationResult<UpdateCommentMutation>;
+export type UpdateCommentMutationOptions = Apollo.BaseMutationOptions<UpdateCommentMutation, UpdateCommentMutationVariables>;
 export const UpdateStatusDocument = gql`
     mutation UpdateStatus($id: ID!, $status: Status!) {
   updateStatus(_id: $id, status: $status) {
-    _id
-    status
-    content
+    ...todo
   }
 }
-    `;
+    ${TodoFragmentDoc}`;
 export type UpdateStatusMutationFn = Apollo.MutationFunction<UpdateStatusMutation, UpdateStatusMutationVariables>;
 
 /**
@@ -481,12 +753,10 @@ export type UpdateStatusMutationOptions = Apollo.BaseMutationOptions<UpdateStatu
 export const UpdateTodoDocument = gql`
     mutation UpdateTodo($id: ID!, $content: String!) {
   updateTodo(_id: $id, content: $content) {
-    _id
-    status
-    content
+    ...todo
   }
 }
-    `;
+    ${TodoFragmentDoc}`;
 export type UpdateTodoMutationFn = Apollo.MutationFunction<UpdateTodoMutation, UpdateTodoMutationVariables>;
 
 /**
@@ -514,14 +784,18 @@ export type UpdateTodoMutationHookResult = ReturnType<typeof useUpdateTodoMutati
 export type UpdateTodoMutationResult = Apollo.MutationResult<UpdateTodoMutation>;
 export type UpdateTodoMutationOptions = Apollo.BaseMutationOptions<UpdateTodoMutation, UpdateTodoMutationVariables>;
 export const FetchAllTodosDocument = gql`
-    query FetchAllTodos {
-  todos {
-    _id
-    status
-    content
+    query FetchAllTodos($userId: ID!) {
+  todos(userId: $userId) {
+    errors {
+      source
+      message
+    }
+    todos {
+      ...todo
+    }
   }
 }
-    `;
+    ${TodoFragmentDoc}`;
 
 /**
  * __useFetchAllTodosQuery__
@@ -535,10 +809,11 @@ export const FetchAllTodosDocument = gql`
  * @example
  * const { data, loading, error } = useFetchAllTodosQuery({
  *   variables: {
+ *      userId: // value for 'userId'
  *   },
  * });
  */
-export function useFetchAllTodosQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<FetchAllTodosQuery, FetchAllTodosQueryVariables>) {
+export function useFetchAllTodosQuery(baseOptions: ApolloReactHooks.QueryHookOptions<FetchAllTodosQuery, FetchAllTodosQueryVariables>) {
         return ApolloReactHooks.useQuery<FetchAllTodosQuery, FetchAllTodosQueryVariables>(FetchAllTodosDocument, baseOptions);
       }
 export function useFetchAllTodosLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<FetchAllTodosQuery, FetchAllTodosQueryVariables>) {
@@ -548,14 +823,12 @@ export type FetchAllTodosQueryHookResult = ReturnType<typeof useFetchAllTodosQue
 export type FetchAllTodosLazyQueryHookResult = ReturnType<typeof useFetchAllTodosLazyQuery>;
 export type FetchAllTodosQueryResult = Apollo.QueryResult<FetchAllTodosQuery, FetchAllTodosQueryVariables>;
 export const FetchTodoDocument = gql`
-    query FetchTodo($id: ID!) {
-  todo(_id: $id) {
-    _id
-    status
-    content
+    query FetchTodo($id: ID!, $userId: ID!) {
+  todo(userId: $userId, _id: $id) {
+    ...todo
   }
 }
-    `;
+    ${TodoFragmentDoc}`;
 
 /**
  * __useFetchTodoQuery__
@@ -570,6 +843,7 @@ export const FetchTodoDocument = gql`
  * const { data, loading, error } = useFetchTodoQuery({
  *   variables: {
  *      id: // value for 'id'
+ *      userId: // value for 'userId'
  *   },
  * });
  */
@@ -582,3 +856,169 @@ export function useFetchTodoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHo
 export type FetchTodoQueryHookResult = ReturnType<typeof useFetchTodoQuery>;
 export type FetchTodoLazyQueryHookResult = ReturnType<typeof useFetchTodoLazyQuery>;
 export type FetchTodoQueryResult = Apollo.QueryResult<FetchTodoQuery, FetchTodoQueryVariables>;
+export const GetAllCommentsDocument = gql`
+    query GetAllComments {
+  getAllComments {
+    ...comment
+  }
+}
+    ${CommentFragmentDoc}`;
+
+/**
+ * __useGetAllCommentsQuery__
+ *
+ * To run a query within a React component, call `useGetAllCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllCommentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllCommentsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GetAllCommentsQuery, GetAllCommentsQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetAllCommentsQuery, GetAllCommentsQueryVariables>(GetAllCommentsDocument, baseOptions);
+      }
+export function useGetAllCommentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetAllCommentsQuery, GetAllCommentsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetAllCommentsQuery, GetAllCommentsQueryVariables>(GetAllCommentsDocument, baseOptions);
+        }
+export type GetAllCommentsQueryHookResult = ReturnType<typeof useGetAllCommentsQuery>;
+export type GetAllCommentsLazyQueryHookResult = ReturnType<typeof useGetAllCommentsLazyQuery>;
+export type GetAllCommentsQueryResult = Apollo.QueryResult<GetAllCommentsQuery, GetAllCommentsQueryVariables>;
+export const GetCommentsDocument = gql`
+    query GetComments($userId: String!) {
+  getComments(userId: $userId) {
+    ...comment
+  }
+}
+    ${CommentFragmentDoc}`;
+
+/**
+ * __useGetCommentsQuery__
+ *
+ * To run a query within a React component, call `useGetCommentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCommentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCommentsQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *   },
+ * });
+ */
+export function useGetCommentsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetCommentsQuery, GetCommentsQueryVariables>) {
+        return ApolloReactHooks.useQuery<GetCommentsQuery, GetCommentsQueryVariables>(GetCommentsDocument, baseOptions);
+      }
+export function useGetCommentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetCommentsQuery, GetCommentsQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<GetCommentsQuery, GetCommentsQueryVariables>(GetCommentsDocument, baseOptions);
+        }
+export type GetCommentsQueryHookResult = ReturnType<typeof useGetCommentsQuery>;
+export type GetCommentsLazyQueryHookResult = ReturnType<typeof useGetCommentsLazyQuery>;
+export type GetCommentsQueryResult = Apollo.QueryResult<GetCommentsQuery, GetCommentsQueryVariables>;
+export const MeDocument = gql`
+    query Me($id: ID!) {
+  me(_id: $id) {
+    _id
+    username
+  }
+}
+    `;
+
+/**
+ * __useMeQuery__
+ *
+ * To run a query within a React component, call `useMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useMeQuery(baseOptions: ApolloReactHooks.QueryHookOptions<MeQuery, MeQueryVariables>) {
+        return ApolloReactHooks.useQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+      }
+export function useMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, baseOptions);
+        }
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const UserDocument = gql`
+    query User($id: ID!) {
+  user(_id: $id) {
+    _id
+    username
+  }
+}
+    `;
+
+/**
+ * __useUserQuery__
+ *
+ * To run a query within a React component, call `useUserQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUserQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUserQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUserQuery(baseOptions: ApolloReactHooks.QueryHookOptions<UserQuery, UserQueryVariables>) {
+        return ApolloReactHooks.useQuery<UserQuery, UserQueryVariables>(UserDocument, baseOptions);
+      }
+export function useUserLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<UserQuery, UserQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<UserQuery, UserQueryVariables>(UserDocument, baseOptions);
+        }
+export type UserQueryHookResult = ReturnType<typeof useUserQuery>;
+export type UserLazyQueryHookResult = ReturnType<typeof useUserLazyQuery>;
+export type UserQueryResult = Apollo.QueryResult<UserQuery, UserQueryVariables>;
+export const UsersDocument = gql`
+    query Users {
+  users {
+    _id
+    username
+  }
+}
+    `;
+
+/**
+ * __useUsersQuery__
+ *
+ * To run a query within a React component, call `useUsersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useUsersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useUsersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useUsersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<UsersQuery, UsersQueryVariables>) {
+        return ApolloReactHooks.useQuery<UsersQuery, UsersQueryVariables>(UsersDocument, baseOptions);
+      }
+export function useUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<UsersQuery, UsersQueryVariables>) {
+          return ApolloReactHooks.useLazyQuery<UsersQuery, UsersQueryVariables>(UsersDocument, baseOptions);
+        }
+export type UsersQueryHookResult = ReturnType<typeof useUsersQuery>;
+export type UsersLazyQueryHookResult = ReturnType<typeof useUsersLazyQuery>;
+export type UsersQueryResult = Apollo.QueryResult<UsersQuery, UsersQueryVariables>;

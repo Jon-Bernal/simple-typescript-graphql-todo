@@ -11,16 +11,22 @@ export const userResolvers: Resolvers = {
   Query: {
     user: async (parent, { _id }, { db }, info) => {
       try {
-        const user = await db.db("todos").collection("users").findOne({ _id });
+        const user = await db
+          .db("todos")
+          .collection("users")
+          .findOne({ _id: new ObjectID(_id) });
+
+        if (!user) throw "user not found";
         return user;
       } catch (error) {
-        console.log("error :>> ", error);
-        return "error";
+        throw new ApolloError(error);
       }
     },
     users: async (_, __, { db }) => {
       try {
-        const users = await db.db("todos").collection("users").find();
+        const users = await db.db("todos").collection("users").find().toArray();
+
+        if (!users) throw new ApolloError("no users, something went wrong");
 
         console.log("users :>> ", users);
 
@@ -32,61 +38,65 @@ export const userResolvers: Resolvers = {
     },
     me: async (_, { _id }, { db }) => {
       try {
-        const user = await db.db("todos").collection("users").findOne({ _id });
+        const user = await db
+          .db("todos")
+          .collection("users")
+          .findOne({ _id: new ObjectID(_id) });
 
+        if (!user) throw "user not found";
         console.log("users :>> ", user);
 
         return user;
       } catch (error) {
         console.log("error :>> ", error);
-        return "error";
+        throw new ApolloError(error);
       }
     },
-    getUserData: async (parent, { _id }, { db }, info) => {
-      try {
-        const user = await db
-          .db("todos")
-          .collection("users")
-          .findOne({ _id: new ObjectID(_id) });
-        console.log("user", user);
-        if (!user) {
-          throw new ApolloError("Error Will");
-          // return {
-          //   __typename: "UserDataError",
-          //   message: "Couldn't find user at that id",
-          // };
-        }
-        const filter = { userId: _id };
-        const usersTodos = await db
-          .db("todos")
-          .collection("todos")
-          .find({})
-          .toArray();
-        console.log("usersTodos", usersTodos);
+    // getUserData: async (parent, { _id }, { db }, info) => {
+    //   try {
+    //     const user = await db
+    //       .db("todos")
+    //       .collection("users")
+    //       .findOne({ _id: new ObjectID(_id) });
+    //     console.log("user", user);
+    //     if (!user) {
+    //       throw new ApolloError("Error Will");
+    //       // return {
+    //       //   __typename: "UserDataError",
+    //       //   message: "Couldn't find user at that id",
+    //       // };
+    //     }
+    //     const filter = { userId: _id };
+    //     const usersTodos = await db
+    //       .db("todos")
+    //       .collection("todos")
+    //       .find({})
+    //       .toArray();
+    //     console.log("usersTodos", usersTodos);
 
-        const userComments = await db
-          .db("todos")
-          .collection("comments")
-          .find({ userId: _id })
-          .toArray();
-        // if (!userComments) throw "no comments found"
-        console.log("userComments", userComments);
+    //     const userComments = await db
+    //       .db("todos")
+    //       .collection("comments")
+    //       .find({ userId: _id })
+    //       .toArray();
+    //     // if (!userComments) throw "no comments found"
+    //     console.log("userComments", userComments);
 
-        return {
-          // ___typename: "UserDataRes",
-          user: user,
-          todos: usersTodos,
-          comments: userComments ? userComments : [],
-        };
-      } catch (err) {
-        console.log("err");
-        throw new ApolloError("Error Will");
-        // return {
-        //   ___typename: "UserDataError",
-        //   message: "Something went horribly wrong",
-        // };
-      }
-    },
+    //     return {
+    //       // ___typename: "UserDataRes",
+    //       user: user,
+    //       todos: usersTodos,
+    //       comments: userComments ? userComments : [],
+    //     };
+    //   } catch (err) {
+    //     console.log("err");
+    //     throw new ApolloError("Error Will");
+    //     // return {
+    //     //   ___typename: "UserDataError",
+    //     //   message: "Something went horribly wrong",
+    //     // };
+    //   }
+    // },
   },
   Mutation: {
     register: async (parent, { input }, { db }, info) => {
@@ -145,6 +155,9 @@ export const userResolvers: Resolvers = {
       } catch (error) {
         throw new ApolloError("user not found, or something");
       }
+    },
+    logout: async (_, __, { db }) => {
+      return true;
     },
   },
 };

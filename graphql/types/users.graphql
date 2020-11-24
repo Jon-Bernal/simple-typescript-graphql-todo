@@ -13,15 +13,15 @@ type User {
   username: String!
 }
 
-type UserData {
-  user: User
-  todos: [Todo]
-  comments: [Comment]
-}
+# type UserData {
+#   user: User
+#   todos: [Todo]
+#   comments: [Comment]
+# }
 
-type UserDataError {
-  message: String
-}
+# type UserDataError {
+#   message: String
+# }
 
 # union UserDataRes = UserData | UserDataError
 
@@ -51,7 +51,7 @@ type Query {
   users: [User]!
   me(_id: ID!): User!
   # getUserData(_id: ID!): UserDataRes!
-  getUserData(_id: ID!): UserData!
+  # getUserData(_id: ID!): UserData!
 }
 
 union RegisterResponse = Token | RegisterError

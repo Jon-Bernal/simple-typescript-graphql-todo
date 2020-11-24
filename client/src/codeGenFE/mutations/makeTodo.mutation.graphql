@@ -2,6 +2,12 @@
 
 mutation MakeTodo($input: MakeTodoInput!) {
   makeTodo(input: $input) {
-    ...todo
+    errors {
+      source
+      message
+    }
+    todo {
+      ...todo
+    }
   }
 }

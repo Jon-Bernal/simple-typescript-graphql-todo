@@ -1,0 +1,5 @@
+fragment comment on Comment {
+  _id
+  userId
+  comment
+}

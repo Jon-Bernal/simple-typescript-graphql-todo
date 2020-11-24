@@ -1,5 +1,6 @@
 fragment todo on Todo {
   _id
+  userId
   status
   content
 }
