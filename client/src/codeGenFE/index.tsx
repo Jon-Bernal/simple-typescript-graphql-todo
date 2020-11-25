@@ -437,6 +437,17 @@ export type UsersQuery = (
   )>> }
 );
 
+export type NewCommentSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewCommentSubscription = (
+  { __typename?: 'Subscription' }
+  & { newComment: (
+    { __typename?: 'Comment' }
+    & Pick<Comment, '_id' | 'userId' | 'comment'>
+  ) }
+);
+
 export const CommentFragmentDoc = gql`
     fragment comment on Comment {
   _id
@@ -1027,3 +1038,33 @@ export function useUsersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOp
 export type UsersQueryHookResult = ReturnType<typeof useUsersQuery>;
 export type UsersLazyQueryHookResult = ReturnType<typeof useUsersLazyQuery>;
 export type UsersQueryResult = Apollo.QueryResult<UsersQuery, UsersQueryVariables>;
+export const NewCommentDocument = gql`
+    subscription NewComment {
+  newComment {
+    _id
+    userId
+    comment
+  }
+}
+    `;
+
+/**
+ * __useNewCommentSubscription__
+ *
+ * To run a query within a React component, call `useNewCommentSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewCommentSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewCommentSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewCommentSubscription(baseOptions?: ApolloReactHooks.SubscriptionHookOptions<NewCommentSubscription, NewCommentSubscriptionVariables>) {
+        return ApolloReactHooks.useSubscription<NewCommentSubscription, NewCommentSubscriptionVariables>(NewCommentDocument, baseOptions);
+      }
+export type NewCommentSubscriptionHookResult = ReturnType<typeof useNewCommentSubscription>;
+export type NewCommentSubscriptionResult = Apollo.SubscriptionResult<NewCommentSubscription>;

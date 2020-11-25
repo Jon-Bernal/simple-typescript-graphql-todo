@@ -1,0 +1,7 @@
+subscription NewComment {
+  newComment {
+    _id
+    userId
+    comment
+  }
+}

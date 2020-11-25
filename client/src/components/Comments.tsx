@@ -5,6 +5,8 @@ import {
   useUpdateCommentMutation,
   useDeleteCommentMutation,
   GetAllCommentsDocument,
+  useNewCommentSubscription,
+  CommentFragmentDoc,
 } from "../codeGenFE";
 import AddComment from "./addComment";
 
@@ -55,42 +57,23 @@ const initState = {
 };
 
 const Comments: FC<Props> = ({ userId }) => {
-  const { data, loading, error } = useGetAllCommentsQuery({});
+  // ======================= Local State ======================= //
+
   const [commentState, commentDispatch] = useReducer(
     commentsReducer,
     initState
   );
-
   const { commentToEdit } = commentState;
 
+  // ======================= Get ======================= //
+  const { data, loading, error } = useGetAllCommentsQuery({});
+
+  // ======================= Delete ======================= //
   const [deleteCommentMutation, { data: delData }] = useDeleteCommentMutation({
     onError(error) {
       console.log("error :>> ", error);
     },
   });
-
-  // ======================= Editing ======================= //
-
-  const [
-    updateCommentMutation,
-    // { data: data2, loading: loading2, error: error2 },
-  ] = useUpdateCommentMutation({});
-
-  function editMode(comment: Comment) {
-    commentDispatch({ type: "start editing comment", comment });
-  }
-
-  function submitEdit(id: string, content: string) {
-    updateCommentMutation({
-      variables: {
-        id: id,
-        comment: content,
-      },
-      update(cache, { data }) {
-        commentDispatch({ type: "finished editing comment" });
-      },
-    });
-  }
 
   function deleteComment(id: string | undefined, userId: string) {
     deleteCommentMutation({
@@ -111,6 +94,57 @@ const Comments: FC<Props> = ({ userId }) => {
       },
     });
   }
+
+  // ======================= Edit ======================= //
+  const [
+    updateCommentMutation,
+    // { data: data2, loading: loading2, error: error2 },
+  ] = useUpdateCommentMutation({});
+
+  function editMode(comment: Comment) {
+    commentDispatch({ type: "start editing comment", comment });
+  }
+
+  function submitEdit(id: string, content: string) {
+    updateCommentMutation({
+      variables: {
+        id: id,
+        comment: content,
+      },
+      update(cache, { data }) {
+        commentDispatch({ type: "finished editing comment" });
+      },
+    });
+  }
+  // ======================= New Comment Subscription ======================= //
+
+  const myUpdate = (client: any, updatedData: any): any => {
+    client.writeQuery({query: GetAllCommentsDocument}, updatedData)
+  }
+
+  const {
+    data: newCommentData,
+    error: newCommentError,
+  } = useNewCommentSubscription({
+    onSubscriptionData({ client, subscriptionData: { data } }) {
+      console.log("client :>> ", client);
+      console.log("subscriptionData :>> ", data);
+      const { getAllComments } = client.readQuery({
+        query: GetAllCommentsDocument,
+      });
+      // console.log("test :>> ", test);
+      if (data?.newComment) {
+        const updatedData = [...getAllComments, data?.newComment];
+        console.log("updatedData :>> ", updatedData);
+        // client.cache.w
+        // const test = client.writeQuery({query: GetAllCommentsDocument}, updatedData)
+        client.writeFragment({CommentFragmentDoc, data: data.newComment})
+        // client.writeQuery(myUpdate(client, updatedData)
+        )}
+    },
+  });
+
+  console.log("newCommentData :>> ", newCommentData);
 
   if (loading) {
     return <p>Loading...</p>;
