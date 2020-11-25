@@ -2,11 +2,16 @@
 import { ApolloError, UserInputError } from "apollo-server-express";
 import { randomBytes } from "crypto";
 import { ObjectID } from "mongodb";
-import { MutationResolvers, QueryResolvers } from "../../codeGenBE";
+import {
+  MutationResolvers,
+  QueryResolvers,
+  SubscriptionResolvers,
+} from "../../codeGenBE";
 
 interface Resolvers {
   Query: QueryResolvers;
   Mutation: MutationResolvers;
+  Subscription: SubscriptionResolvers;
 }
 export const commentResolvers: Resolvers = {
   Query: {
@@ -40,7 +45,7 @@ export const commentResolvers: Resolvers = {
     },
   },
   Mutation: {
-    makeComment: async (parents, { userId, comment }, { db }, info) => {
+    makeComment: async (parents, { userId, comment }, { db, pubsub }, info) => {
       try {
         const dbRes = await db
           .db("todos")
@@ -49,6 +54,7 @@ export const commentResolvers: Resolvers = {
         console.log("dbRes", dbRes);
 
         if (!dbRes.ops[0]) throw dbRes;
+        pubsub.publish("NEW_COMMENT", { newComment: dbRes.ops[0] });
         return dbRes.ops[0];
       } catch (error) {
         console.log("error", error);
@@ -113,7 +119,11 @@ export const commentResolvers: Resolvers = {
       }
     },
   },
-  // Subscription: {
-
-  // }
+  Subscription: {
+    newComment: {
+      subscribe: (_, __, { connection }) => {
+        return connection.pubsub.asyncIterator(["NEW_COMMENT"]);
+      },
+    },
+  },
 };

@@ -53,67 +53,43 @@ MongoClient.connect(
 );
 
 const app = express();
-// app.use(cors(options));
 app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-// const isUserFound = async (req: any) => {
-//   console.log("typeof req :>> ", typeof req);
-//   // console.log("Running isUserFound");
-//   const token = req.headers.authorization;
-//   if (token) {
-//     // console.log("We Have A Token!!!");
-//     try {
-//       console.log({ token });
-//       const actualToken = token.replace(/Bearer\s/, "");
-//       // console.log("actualToken", actualToken);
-//       return jwt.verify(actualToken, process.env.SECRET, (err, decoded) => {
-//         console.log("err", err);
-//         console.log("decoded", decoded);
-//         return decoded;
-//       });
-//     } catch (err) {
-//       console.log("Error in catch block");
-//       console.log({ err });
-//       throw new AuthenticationError("Your session expired. Sign in again.");
-//     }
-//   }
-// };
+
 const pubsub = new PubSub();
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   playground: {
     endpoint: "/graphql",
   },
-  context: async ({ req }: any) => {
-    // if (connection) {
-    // return connection.context;
-    // } else {
-    // console.log("req.body", req);
-    // const user = await isUserFound(req);
-    // console.log({ user });
-    // return { db, user, secret: process.env.SECRET, req };
-    // return {};
-    // }
-    return { db, secret: process.env.SECRET, req, pubsub };
+  context: async ({ req, connection }: any) => {
+    if (connection) {
+      console.log("in connection if block");
+      connection.pubsub = pubsub;
+      return { connection };
+    } else {
+      return { db, secret: process.env.SECRET, req, pubsub };
+    }
   },
 });
 server.applyMiddleware({ app }); //import
 
-// const httpServer = http.createServer(app);
-// server.installSubscriptionHandlers(httpServer);
+const httpServer = http.createServer(app);
+server.installSubscriptionHandlers(httpServer);
 
 try {
   const port = process.env.Port || 5000;
-  app.listen(port, () => console.log(`Server running on port ${port}`));
-  // httpServer.listen(port, () => {
-  //   console.log(`Server running on port ${port}`);
-  //   console.log(
-  //     `Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
-  //   );
-  // });
+  // app.listen(port, () => console.log(`Server running on port ${port}`));
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(
+      `Subscriptions ready at ws://localhost:${port}${server.subscriptionsPath}`
+    );
+  });
 } catch (err) {
   console.log("err", err);
 }

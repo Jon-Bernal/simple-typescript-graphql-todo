@@ -128,6 +128,11 @@ export type MutationLoginArgs = {
   input: UserLoginInput;
 };
 
+export type Subscription = {
+  __typename?: 'Subscription';
+  newComment: Comment;
+};
+
 export enum Status {
   Complete = 'COMPLETE',
   Incomplete = 'INCOMPLETE'
@@ -289,6 +294,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<{}>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Subscription: ResolverTypeWrapper<{}>;
   Status: Status;
   Todo: ResolverTypeWrapper<Todo>;
   TodoError: ResolverTypeWrapper<TodoError>;
@@ -314,6 +320,7 @@ export type ResolversParentTypes = {
   Query: {};
   Mutation: {};
   Boolean: Scalars['Boolean'];
+  Subscription: {};
   Todo: Todo;
   TodoError: TodoError;
   TodoRes: TodoRes;
@@ -395,6 +402,10 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 };
 
+export type SubscriptionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
+  newComment?: SubscriptionResolver<ResolversTypes['Comment'], "newComment", ParentType, ContextType>;
+};
+
 export type TodoResolvers<ContextType = any, ParentType extends ResolversParentTypes['Todo'] = ResolversParentTypes['Todo']> = {
   _id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -454,6 +465,7 @@ export type Resolvers<ContextType = any> = {
   Comment?: CommentResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
   Todo?: TodoResolvers<ContextType>;
   TodoError?: TodoErrorResolvers<ContextType>;
   TodoRes?: TodoResResolvers<ContextType>;
