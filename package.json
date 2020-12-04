@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --project ./",
+    "start": "tsc && node index.js",
     "dev": "nodemon index.ts",
     "generate": "graphql-codegen --config codegen.yml"
   },
@@ -20,6 +21,7 @@
     "@graphql-codegen/typescript-operations": "^1.17.9",
     "@graphql-codegen/typescript-react-apollo": "^2.1.1",
     "@graphql-codegen/typescript-resolvers": "1.17.10",
+    "@types/bcryptjs": "^2.4.2",
     "@types/body-parser": "^1.19.0",
     "@types/cors": "^2.8.8",
     "@types/dotenv": "^8.2.0",
@@ -28,18 +30,18 @@
     "@types/node": "^14.14.7",
     "nodemon": "^2.0.6",
     "ts-node": "^9.0.0",
-    "type-graphql": "^1.1.1",
     "typescript": "^4.0.5"
   },
   "dependencies": {
     "@types/react-icons": "^3.0.0",
     "apollo-server-express": "^2.19.0",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "graphql": "^15.4.0",
     "graphql-tools": "^7.0.1",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.3",
     "react-icons": "^3.11.0"
   }

@@ -13,7 +13,7 @@ interface Resolvers {
 
 export const todoResolvers: Resolvers = {
   Query: {
-    todo: async (parent, { _id, userId }, { db }, info) => {
+    todo: async (_, { _id, userId }, { db }, __) => {
       try {
         // const { _id } = args;
         // const { db } = context;
@@ -43,7 +43,7 @@ export const todoResolvers: Resolvers = {
         return "error";
       }
     },
-    todos: async (parent, { userId }, { db }, info) => {
+    todos: async (_, { userId }, { db }, __) => {
       try {
         const todos = await db
           .db("todos")
@@ -64,7 +64,7 @@ export const todoResolvers: Resolvers = {
     },
   },
   Mutation: {
-    makeTodo: async (parent, { input }, context, info) => {
+    makeTodo: async (_, { input }, context, __) => {
       try {
         const { db } = context;
         const { userId, content } = input;
@@ -92,7 +92,7 @@ export const todoResolvers: Resolvers = {
         return errorFormatter("internal", "Something went wrong internally");
       }
     },
-    updateTodo: async (parent, args, context, info) => {
+    updateTodo: async (_, args, context, __) => {
       try {
         const { db } = context;
         const { _id, content } = args;
@@ -116,7 +116,7 @@ export const todoResolvers: Resolvers = {
         // };
       }
     },
-    updateStatus: async (parent, args, context, info) => {
+    updateStatus: async (_, args, context, __) => {
       try {
         const { db } = context;
         const { _id, status } = args;
@@ -143,7 +143,7 @@ export const todoResolvers: Resolvers = {
         console.log("error :>> ", error);
       }
     },
-    deleteTodo: async (parent, { _id }, { db }, info) => {
+    deleteTodo: async (_, { _id }, { db }, __) => {
       try {
         // const { _id } = args;
         // const { db } = context;

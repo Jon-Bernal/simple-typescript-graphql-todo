@@ -1,41 +1,19 @@
 import * as dotenv from "dotenv";
+dotenv.config();
 import cors from "cors";
 import http from "http";
+import jwt from "jsonwebtoken";
 
 // const jwt = require("jsonwebtoken");
-const express = require("express");
-// const mongoose = require("mongoose");
-const {
-  ApolloServer,
-  AuthenticationError,
-  PubSub,
-} = require("apollo-server-express");
+import express from "express";
+import { ApolloServer, PubSub } from "apollo-server-express";
 import { typeDefs } from "./graphql/typeDefs";
-
 import { resolvers } from "./graphql/resolvers";
-// const models = require("./mongooseModels");
-
-const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 import * as mongodb from "mongodb";
 const { MongoClient } = mongodb;
 // const MongoClient = require("mongodb").MongoClient;
-
-dotenv.config({ path: __dirname + "/.env" });
-//options for cors midddleware
-
-// const options: cors.CorsOptions = {
-//   allowedHeaders: [
-//     "Origin",
-//     "X-Requested-With",
-//     "Content-Type",
-//     "Accept",
-//     "X-Access-Token",
-//   ],
-//   credentials: true,
-//   methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
-//   origin: "http://localhost:5000",
-//   preflightContinue: false,
-// };
+import { MyContext } from "./graphql/types/MyContext";
 
 // db is an object
 let db: any; // TODO: Change any to whatever type it really is.
@@ -58,30 +36,8 @@ const app = express();
 // app.use(cors(options));
 app.use(cors());
 
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-// const isUserFound = async (req: any) => {
-//   console.log("typeof req :>> ", typeof req);
-//   // console.log("Running isUserFound");
-//   const token = req.headers.authorization;
-//   if (token) {
-//     // console.log("We Have A Token!!!");
-//     try {
-//       console.log({ token });
-//       const actualToken = token.replace(/Bearer\s/, "");
-//       // console.log("actualToken", actualToken);
-//       return jwt.verify(actualToken, process.env.SECRET, (err, decoded) => {
-//         console.log("err", err);
-//         console.log("decoded", decoded);
-//         return decoded;
-//       });
-//     } catch (err) {
-//       console.log("Error in catch block");
-//       console.log({ err });
-//       throw new AuthenticationError("Your session expired. Sign in again.");
-//     }
-//   }
-// };
 
 const pubsub = new PubSub();
 
@@ -91,33 +47,34 @@ const server = new ApolloServer({
   playground: {
     endpoint: "/graphql",
   },
-  context: async ({ req, connection }: any) => {
+  context: async ({ req, connection }: MyContext) => {
     if (connection) {
       console.log("in connection if block");
-      // console.log("connection.pubsub", connection.pubsub);
       connection.pubsub = pubsub;
-      console.log("connection.context", connection);
-      // return connection;
       return { connection };
-      // return connection.context;
     } else {
-      return { db, secret: process.env.SECRET, req, pubsub };
+      const token = req.headers.authorization || "";
+      try {
+        const user = jwt.verify(
+          token.split(" ")[1],
+          `${process.env.JWT_SECRET}`
+        );
+        if (!user) throw new Error("Token is invalid, please log in");
+        return { db, secret: process.env.SECRET, req, pubsub, user };
+      } catch (err) {
+        console.log("err");
+        throw new Error("Internal Error.");
+      }
     }
-    // console.log("req.body", req);
-    // const user = await isUserFound(req);
-    // console.log({ user });
-    // return { db, user, secret: process.env.SECRET, req };
-    // return {};
   },
 });
-server.applyMiddleware({ app }); //import
+server.applyMiddleware({ app, cors: false }); //import
 
 const httpServer = http.createServer(app);
 server.installSubscriptionHandlers(httpServer);
 
 try {
-  const port = process.env.Port || 5000;
-  // app.listen(port, () => console.log(`Server running on port ${port}`));
+  const port = process.env.PORT || 5000;
   httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
     console.log(

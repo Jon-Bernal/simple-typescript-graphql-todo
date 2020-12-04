@@ -1,7 +1,9 @@
+require:
+  - ts-node/register
 overwrite: true
-schema: "./graphql/typeDefsGen.ts"
+schema: "./graphql/typeDefs.ts"
 watch: true
-documents: null
+# documents: null
 generates:
   ./codeGenBE/index.ts:
     plugins:
@@ -12,21 +14,21 @@ generates:
   ./graphql.schema.json:
     plugins:
       - "introspection"
-  ./client/src/codeGenFE/index.tsx:
-    documents: ./client/src/codeGenFE/**/*.graphql
-    # documents: ./client/src/queries/*.tsx
-    # documents: null
-    plugins:
-      # - add: /* eslint-disable */
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-react-apollo"
-    config:
-      skipTypename: false
-      withHooks: true
-      withHOC: false
-      withComponent: false
-      apolloReactHooksImportFrom: "@apollo/client"
+  # ./client/src/codeGenFE/index.tsx:
+  #   documents: ./client/src/codeGenFE/**/*.graphql
+  #   # documents: ./client/src/queries/*.tsx
+  #   # documents: null
+  #   plugins:
+  #     # - add: /* eslint-disable */
+  #     - "typescript"
+  #     - "typescript-operations"
+  #     - "typescript-react-apollo"
+  #   config:
+  #     skipTypename: false
+  #     withHooks: true
+  #     withHOC: false
+  #     withComponent: false
+  #     apolloReactHooksImportFrom: "@apollo/client"
 # schema: ./server/schema.ts
 # generates:
 #   server/gen-types.ts:

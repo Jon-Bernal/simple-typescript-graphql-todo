@@ -1,6 +1,6 @@
 // const ObjectID = require("mongodb").ObjectID;
 import { ApolloError, UserInputError } from "apollo-server-express";
-import { randomBytes } from "crypto";
+// import { randomBytes } from "crypto";
 import { ObjectID } from "mongodb";
 import {
   MutationResolvers,
@@ -15,7 +15,7 @@ interface Resolvers {
 }
 export const commentResolvers: Resolvers = {
   Query: {
-    getComments: async (parents, { userId }, { db }, info) => {
+    getComments: async (_, { userId }, { db }, __) => {
       try {
         const comments = await db
           .db("todos")
@@ -29,7 +29,7 @@ export const commentResolvers: Resolvers = {
         throw new ApolloError("Sorry, couldn't fetch the comments");
       }
     },
-    getAllComments: async (parents, args, { db }, info) => {
+    getAllComments: async (_, args, { db }, __) => {
       try {
         const comments = await db
           .db("todos")
@@ -45,7 +45,7 @@ export const commentResolvers: Resolvers = {
     },
   },
   Mutation: {
-    makeComment: async (parents, { userId, comment }, { db, pubsub }, info) => {
+    makeComment: async (_, { userId, comment }, { db, pubsub }, __) => {
       try {
         const dbRes = await db
           .db("todos")

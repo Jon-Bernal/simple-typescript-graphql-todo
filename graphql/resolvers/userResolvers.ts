@@ -1,7 +1,16 @@
 // const ObjectID = require("mongodb").ObjectID;
-import { ApolloError } from "apollo-server-express";
-import { ObjectID } from "mongodb";
-import { MutationResolvers, QueryResolvers } from "../../codeGenBE";
+// import { ApolloError } from "apollo-server-express";
+// import { ObjectID } from "mongodb";
+import bcrypt from "bcryptjs";
+import {
+  RegisterResponse,
+  LoginResponse,
+  MutationResolvers,
+  QueryResolvers,
+} from "../../codeGenBE";
+import { registerValidation } from "../../utils/registerValidation";
+import { getToken } from "../../utils/getToken";
+import { loginValidation } from "../../utils/loginValidation";
 
 interface Resolvers {
   Query: QueryResolvers;
@@ -9,155 +18,53 @@ interface Resolvers {
 }
 export const userResolvers: Resolvers = {
   Query: {
-    user: async (parent, { _id }, { db }, info) => {
-      try {
-        const user = await db
-          .db("todos")
-          .collection("users")
-          .findOne({ _id: new ObjectID(_id) });
-
-        if (!user) throw "user not found";
-        return user;
-      } catch (error) {
-        throw new ApolloError(error);
-      }
+    hello: async (_, __, ___, ____) => {
+      return "hello";
     },
-    users: async (_, __, { db }) => {
-      try {
-        const users = await db.db("todos").collection("users").find().toArray();
-
-        if (!users) throw new ApolloError("no users, something went wrong");
-
-        console.log("users :>> ", users);
-
-        return users;
-      } catch (error) {
-        console.log("error :>> ", error);
-        return "error";
-      }
-    },
-    me: async (_, { _id }, { db }) => {
-      try {
-        const user = await db
-          .db("todos")
-          .collection("users")
-          .findOne({ _id: new ObjectID(_id) });
-
-        if (!user) throw "user not found";
-        console.log("users :>> ", user);
-
-        return user;
-      } catch (error) {
-        console.log("error :>> ", error);
-        throw new ApolloError(error);
-      }
-    },
-    // getUserData: async (parent, { _id }, { db }, info) => {
-    //   try {
-    //     const user = await db
-    //       .db("todos")
-    //       .collection("users")
-    //       .findOne({ _id: new ObjectID(_id) });
-    //     console.log("user", user);
-    //     if (!user) {
-    //       throw new ApolloError("Error Will");
-    //       // return {
-    //       //   __typename: "UserDataError",
-    //       //   message: "Couldn't find user at that id",
-    //       // };
-    //     }
-    //     const filter = { userId: _id };
-    //     const usersTodos = await db
-    //       .db("todos")
-    //       .collection("todos")
-    //       .find({})
-    //       .toArray();
-    //     console.log("usersTodos", usersTodos);
-
-    //     const userComments = await db
-    //       .db("todos")
-    //       .collection("comments")
-    //       .find({ userId: _id })
-    //       .toArray();
-    //     // if (!userComments) throw "no comments found"
-    //     console.log("userComments", userComments);
-
-    //     return {
-    //       // ___typename: "UserDataRes",
-    //       user: user,
-    //       todos: usersTodos,
-    //       comments: userComments ? userComments : [],
-    //     };
-    //   } catch (err) {
-    //     console.log("err");
-    //     throw new ApolloError("Error Will");
-    //     // return {
-    //     //   ___typename: "UserDataError",
-    //     //   message: "Something went horribly wrong",
-    //     // };
-    //   }
-    // },
   },
   Mutation: {
-    register: async (parent, { input }, { db }, info) => {
+    register: async (_, { input }, { db }, __): Promise<RegisterResponse> => {
       const { username, password, confirmPassword } = input;
       try {
+        const errors = registerValidation(username, password, confirmPassword);
+        if (errors.length > 0) return { errors };
         const filter = { username };
-        const newUser = { username, password };
-        const user = await db.db("todos").collection("users").findOne(filter);
-        if (user) {
-          return {
-            __typename: "RegisterError",
-            message: "Username already exists",
-          };
-        } else {
-          // make token and return token
-          const newUserRes = await db
-            .db("todos")
-            .collection("users")
-            .insertOne(newUser);
-          if (!newUserRes) {
-            return {
-              __typename: "RegisterError",
-              message: "Could not add user to DB",
-            };
-          } else {
-            const token = newUserRes?.ops[0]._id;
-            return {
-              __typename: "Token",
-              token: token,
-            };
-          }
-        }
+        const hashedPW = await bcrypt.hash(password, 12);
+        const newUser = { username, password: hashedPW };
+        const user = await db.db("users").collection("users").findOne(filter);
+        if (user) return { error: { message: "User Already Exists" } };
+        const newUserRes = await db
+          .db("users")
+          .collection("users")
+          .insertOne(newUser);
+        if (!newUserRes)
+          return { error: { message: "Could not add user to DB" } };
+        const createToken = getToken(newUserRes.ops[0]._id, username);
+        return { token: createToken };
       } catch (err) {
-        return {
-          __typename: "RegisterError",
-          message: "Internal Service Issues",
-        };
+        console.log("err", err);
+        const error = { message: "Internal Error" };
+        return { error };
       }
     },
-    login: async (parent, { input }, { db }, info) => {
-      const { username, password } = input;
+    login: async (_, { input }, { db }, __): Promise<LoginResponse> => {
       try {
+        const { username, password } = input;
+        const isValidLogin = loginValidation(username, password);
+        if (isValidLogin.length > 0) return { errors: isValidLogin };
         const user = await db
-          .db("todos")
+          .db("users")
           .collection("users")
           .findOne({ username });
-
-        if (!user)
-          return { __typename: "LoginError", message: "No user found" };
-
-        // check password
-        if (user.password !== password)
-          return { __typename: "LoginError", message: "Wrong Password" };
-
-        return { __typename: "Token", token: user._id };
-      } catch (error) {
-        throw new ApolloError("user not found, or something");
+        if (!user) return { error: { message: "No user with that username" } };
+        const validPW = await bcrypt.compare(password, user.password);
+        if (!validPW) return { error: { message: "Invalid Credentials" } };
+        const token = getToken(user._id, user.username);
+        return { token, user };
+      } catch (err) {
+        console.log(err);
+        return { error: { message: "Something went wrong Internally" } };
       }
-    },
-    logout: async (_, __, { db }) => {
-      return true;
     },
   },
 };
