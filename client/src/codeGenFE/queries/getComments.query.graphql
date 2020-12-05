@@ -1,5 +1,0 @@
-query GetComments($userId: String!) {
-  getComments(userId: $userId) {
-    ...comment
-  }
-}

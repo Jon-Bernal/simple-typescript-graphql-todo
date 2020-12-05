@@ -1,5 +1,0 @@
-query FetchTodo($id: ID!, $userId: ID!) {
-  todo(userId: $userId, _id: $id) {
-    ...todo
-  }
-}

@@ -2,15 +2,22 @@
 // import { ApolloError } from "apollo-server-express";
 // import { ObjectID } from "mongodb";
 import bcrypt from "bcryptjs";
+// import jwt from "jsonwebtoken";
 import {
   RegisterResponse,
+  // User,
   LoginResponse,
   MutationResolvers,
   QueryResolvers,
 } from "../../codeGenBE";
 import { registerValidation } from "../../utils/registerValidation";
-import { getToken } from "../../utils/getToken";
 import { loginValidation } from "../../utils/loginValidation";
+import {
+  createRefreshToken,
+  getToken,
+  sendRefreshToken,
+  revokeRefreshTokensForUser,
+} from "../../auth/auth";
 
 interface Resolvers {
   Query: QueryResolvers;
@@ -18,8 +25,10 @@ interface Resolvers {
 }
 export const userResolvers: Resolvers = {
   Query: {
-    hello: async (_, __, ___, ____) => {
-      return "hello";
+    me: async (_, __, { user, db }, ____) => {
+      const u = await db.db("users").collection("users").findOne(user._id);
+      if (!u) return null;
+      return u;
     },
   },
   Mutation: {
@@ -30,7 +39,7 @@ export const userResolvers: Resolvers = {
         if (errors.length > 0) return { errors };
         const filter = { username };
         const hashedPW = await bcrypt.hash(password, 12);
-        const newUser = { username, password: hashedPW };
+        const newUser = { username, password: hashedPW, tokenVersion: 0 };
         const user = await db.db("users").collection("users").findOne(filter);
         if (user) return { error: { message: "User Already Exists" } };
         const newUserRes = await db
@@ -39,7 +48,14 @@ export const userResolvers: Resolvers = {
           .insertOne(newUser);
         if (!newUserRes)
           return { error: { message: "Could not add user to DB" } };
-        const createToken = getToken(newUserRes.ops[0]._id, username);
+        const tokenVersion = newUserRes.ops[0].tokenVersion;
+        console.log("tokenVersion", tokenVersion);
+        const createToken = getToken(
+          newUserRes.ops[0]._id,
+          username,
+          tokenVersion
+        );
+        console.log("createToken", createToken);
         return { token: createToken };
       } catch (err) {
         console.log("err", err);
@@ -47,7 +63,7 @@ export const userResolvers: Resolvers = {
         return { error };
       }
     },
-    login: async (_, { input }, { db }, __): Promise<LoginResponse> => {
+    login: async (_, { input }, { db, res }, __): Promise<LoginResponse> => {
       try {
         const { username, password } = input;
         const isValidLogin = loginValidation(username, password);
@@ -59,12 +75,19 @@ export const userResolvers: Resolvers = {
         if (!user) return { error: { message: "No user with that username" } };
         const validPW = await bcrypt.compare(password, user.password);
         if (!validPW) return { error: { message: "Invalid Credentials" } };
-        const token = getToken(user._id, user.username);
+        const tokenVersion = user.tokenVersion;
+        sendRefreshToken(res, createRefreshToken(user._id));
+        const token = getToken(user._id, user.username, tokenVersion);
         return { token, user };
       } catch (err) {
         console.log(err);
         return { error: { message: "Something went wrong Internally" } };
       }
+    },
+    logout: async (_, __, { db, payload }, ___): Promise<boolean> => {
+      console.log("payload", payload);
+      const bool = revokeRefreshTokensForUser(payload._id, db);
+      return bool;
     },
   },
 };

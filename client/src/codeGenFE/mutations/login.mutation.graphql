@@ -1,11 +1,16 @@
 mutation Login($input: UserLoginInput!) {
   login(input: $input) {
-    __typename
-    ... on Token {
-      token
-    }
-    ... on LoginError {
+    error {
       message
     }
+    errors {
+      source
+      message
+    }
+    user {
+      _id
+      username
+    }
+    token
   }
 }

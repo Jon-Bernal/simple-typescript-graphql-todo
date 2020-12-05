@@ -1,6 +1,7 @@
 type User {
   _id: ID!
   username: String!
+  tokenVersion: Int
 }
 
 input UserLoginInput {
@@ -8,27 +9,10 @@ input UserLoginInput {
   password: String!
 }
 
-type LoginError {
-  message: String!
-}
-
-# union LoginResponse = Token | LoginError
-
 input UserRegisterInput {
   username: String!
   password: String!
   confirmPassword: String!
-}
-
-type RegisterError {
-  message: String!
-}
-
-type Query {
-  hello: String
-  # user(_id: ID!): User!
-  # users: [User]!
-  # me(_id: ID!): User!
 }
 
 type LoginResponse {
@@ -44,9 +28,17 @@ type RegisterResponse {
   token: String
 }
 
+type Query {
+  hello: String
+  me: User!
+  # user(_id: ID!): User!
+  # users: [User]!
+}
+
 type Mutation {
   register(input: UserRegisterInput!): RegisterResponse!
   login(input: UserLoginInput!): LoginResponse!
+  logout: Boolean!
   # login(input: UserLoginInput!): LoginResponse!
   # logout: Boolean!
 }

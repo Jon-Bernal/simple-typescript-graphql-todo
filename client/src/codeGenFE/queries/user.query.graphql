@@ -1,6 +1,0 @@
-query User($id: ID!) {
-  user(_id: $id) {
-    _id
-    username
-  }
-}

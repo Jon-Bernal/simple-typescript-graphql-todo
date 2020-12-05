@@ -1,11 +1,12 @@
 mutation Register($input: UserRegisterInput!) {
   register(input: $input) {
-    __typename
-    ... on Token {
-      token
-    }
-    ... on RegisterError {
+    error {
       message
     }
+    errors {
+      source
+      message
+    }
+    token
   }
 }

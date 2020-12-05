@@ -1,5 +1,0 @@
-mutation UpdateTodo($id: ID!, $content: String!) {
-  updateTodo(_id: $id, content: $content) {
-    ...todo
-  }
-}
