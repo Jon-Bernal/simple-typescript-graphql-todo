@@ -1,6 +1,6 @@
-// import * as dotenv from "dotenv";
-// dotenv.config();
-import "dotenv/config";
+import * as dotenv from "dotenv-safe";
+dotenv.config();
+// import "dotenv/config";
 import cors from "cors";
 import http from "http";
 import { verify } from "jsonwebtoken";
@@ -37,8 +37,23 @@ MongoClient.connect(
 
 const app = express();
 app.use(cookieParser());
+const corsOptions = {
+  origin: [
+    "http://localhost:4000/graphql",
+    "https://studio.apollographql.com",
+    "ws://studio.apollographql.com",
+    "ws://localhost:4000/graphql",
+    "http://localhost:3000",
+    "http://localhost:4000/graphql",
+  ],
+  //exposedHeaders: "Set-Cookie",
+  credentials: true,
+  //httpOnly: true,
+};
+app.use(cors(corsOptions));
 app.post("/refresh_token", async (req, res) => {
   const token = req.cookies[process.env.COOKIE_NAME!];
+  //const token = req.cookies[process.env.COOKIE_NAME!];
   if (!token) {
     return res.send({ ok: false, token: "" });
   }
@@ -68,17 +83,6 @@ app.post("/refresh_token", async (req, res) => {
     token: getToken(user._id, user.username, user.tokenVersion),
   });
 });
-const corsOptions = {
-  origin: [
-    "http://localhost:4000/graphql",
-    "https://studio.apollographql.com",
-    "ws://studio.apollographql.com",
-    "ws://localhost:4000/graphql",
-    "http://localhost:3000",
-  ],
-  credentials: true,
-};
-app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 // app.use(isAuth);

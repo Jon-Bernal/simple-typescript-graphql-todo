@@ -24,7 +24,10 @@ export const createRefreshToken = (_id: string, tVerz = 0) => {
 
 export const sendRefreshToken = (res: Response, token: string) => {
   console.log("token from sendRefreshToken", token);
-  res.cookie(process.env.COOKIE_NAME!, token, { httpOnly: true });
+  res.cookie(process.env.COOKIE_NAME!.toString(), token, {
+    httpOnly: true,
+    //secure: false,
+  });
   const test = res.cookie;
   console.log("res.cookie", test);
 };

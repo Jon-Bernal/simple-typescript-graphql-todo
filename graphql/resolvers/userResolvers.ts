@@ -30,6 +30,9 @@ export const userResolvers: Resolvers = {
       if (!u) return null;
       return u;
     },
+    users: async (_, __, { db }, ____) => {
+      return await db.db("users").collection("users").find({}).toArray();
+    },
   },
   Mutation: {
     register: async (_, { input }, { db }, __): Promise<RegisterResponse> => {
