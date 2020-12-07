@@ -39,7 +39,6 @@ const app = express();
 app.use(cookieParser());
 const corsOptions = {
   origin: [
-    "http://localhost:4000/graphql",
     "https://studio.apollographql.com",
     "ws://studio.apollographql.com",
     "ws://localhost:4000/graphql",

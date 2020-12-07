@@ -1,6 +1,7 @@
 import { ObjectID } from "mongodb";
 import { Response } from "express";
 import jwt from "jsonwebtoken";
+import { __prod__ } from "../constants";
 
 export const getToken = (
   _id: string,
@@ -24,9 +25,11 @@ export const createRefreshToken = (_id: string, tVerz = 0) => {
 
 export const sendRefreshToken = (res: Response, token: string) => {
   console.log("token from sendRefreshToken", token);
+  console.log("__prod__", __prod__);
   res.cookie(process.env.COOKIE_NAME!.toString(), token, {
-    httpOnly: true,
-    //secure: false,
+    httpOnly: __prod__,
+    // sameSite: "lax",
+    secure: __prod__,
   });
   const test = res.cookie;
   console.log("res.cookie", test);
