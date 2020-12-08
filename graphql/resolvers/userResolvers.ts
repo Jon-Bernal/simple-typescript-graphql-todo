@@ -18,6 +18,8 @@ import {
   sendRefreshToken,
   revokeRefreshTokensForUser,
 } from "../../auth/auth";
+import { ObjectID } from "mongodb";
+// import { verify } from "jsonwebtoken";
 
 interface Resolvers {
   Query: QueryResolvers;
@@ -25,13 +27,43 @@ interface Resolvers {
 }
 export const userResolvers: Resolvers = {
   Query: {
-    me: async (_, __, { user, db }, ____) => {
-      const u = await db.db("users").collection("users").findOne(user._id);
+    me: async (_, __, { payload, db }, ____) => {
+      console.log("payload from me", payload);
+      const u = await db
+        .db("users")
+        .collection("users")
+        .findOne({ _id: new ObjectID(payload._id) });
+      console.log("u", u);
       if (!u) return null;
       return u;
     },
+    // me: async (_, __, { user, db, payload, req }, ____) => {
+    //   const authorization = req.headers["authorization"];
+    //   if (!authorization) {
+    //     return null;
+    //   }
+    //   try {
+    //     const token = authorization.split(" ")[1];
+    //     const payloaddd = verify(token, process.env.JWT_SECRET!);
+    //     payload = payloaddd as any;
+    //     return await db
+    //       .db("users")
+    //       .collection("users")
+    //       .findOne({ _id: payload._id });
+    //   } catch (err) {
+    //     console.log("err", err);
+    //     return null;
+    //   }
+    // },
     users: async (_, __, { db }, ____) => {
       return await db.db("users").collection("users").find({}).toArray();
+    },
+    bye: (_, __, { payload }, ____) => {
+      console.log("payload from bye", payload);
+      if (!payload) {
+        return "nope";
+      }
+      return "laterz";
     },
   },
   Mutation: {
@@ -92,5 +124,10 @@ export const userResolvers: Resolvers = {
       const bool = revokeRefreshTokensForUser(payload._id, db);
       return bool;
     },
+    // logout: async (_, __, { res }, ___): Promise<boolean> => {
+    //   sendRefreshToken(res, "");
+    //   // const bool = revokeRefreshTokensForUser(payload._id, db);
+    //   return true;
+    // },
   },
 };

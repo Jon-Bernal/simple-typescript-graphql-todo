@@ -32,6 +32,7 @@ type Query {
   hello: String
   me: User!
   users: [User]!
+  bye: String
   # user(_id: ID!): User!
   # users: [User]!
 }

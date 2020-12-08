@@ -1,18 +1,32 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import Routes from "./Routes";
+// import Routes from "./Routes";
+import { getAccessToken } from "./accessToken";
+import { setContext } from "@apollo/client/link/context";
 import {
   ApolloClient,
   InMemoryCache,
   createHttpLink,
   ApolloProvider,
 } from "@apollo/client";
+import App from "./App";
 
 const httpLink = createHttpLink({ uri: "http://localhost:4000/graphql" });
 
+const authLink = setContext(({ headers }: any) => {
+  const accessToken = getAccessToken();
+  console.log("accessToken", accessToken);
+  return {
+    headers: {
+      ...headers,
+      authorization: accessToken ? `Bearer ${accessToken}` : "",
+    },
+  };
+});
+
 const client = new ApolloClient({
-  link: httpLink,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
   credentials: "include",
   // headers: {
@@ -23,7 +37,7 @@ const client = new ApolloClient({
 ReactDOM.render(
   <React.StrictMode>
     <ApolloProvider client={client}>
-      <Routes />
+      <App />
     </ApolloProvider>
   </React.StrictMode>,
   document.getElementById("root")

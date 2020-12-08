@@ -36,7 +36,6 @@ MongoClient.connect(
 );
 
 const app = express();
-app.use(cookieParser());
 const corsOptions = {
   origin: [
     "https://studio.apollographql.com",
@@ -50,6 +49,8 @@ const corsOptions = {
   //httpOnly: true,
 };
 app.use(cors(corsOptions));
+app.use(cookieParser());
+// app.use(cors());
 app.post("/refresh_token", async (req, res) => {
   const token = req.cookies[process.env.COOKIE_NAME!];
   //const token = req.cookies[process.env.COOKIE_NAME!];
@@ -103,7 +104,9 @@ const server = new ApolloServer({
       let authorization;
       try {
         console.log("req.headers", req.headers);
-        authorization = req.headers["authorization"];
+        // authorization = req.headers["authorization"];
+        // authorization = req.headers.authorization!.split(" ")[1];
+        authorization = req.headers.authorization;
         console.log("authorization", authorization);
 
         if (!authorization) {
@@ -111,7 +114,8 @@ const server = new ApolloServer({
           authorization = undefined;
           return { db, secret: process.env.SECRET, req, res, pubsub };
         } else {
-          const token = authorization.split("")[1];
+          const token = authorization.split(" ")[1];
+          console.log("token", token);
           const payload = verify(token, process.env.JWT_SECRET!);
           console.log("payload", payload);
           // context.payload = payload as any;

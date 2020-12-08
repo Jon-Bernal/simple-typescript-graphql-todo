@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
 import { RouteComponentProps } from "react-router-dom";
-import { useLoginMutation } from "../codeGenFE";
+import { MeDocument, MeQuery, useLoginMutation } from "../codeGenFE";
+import { setAccessToken } from "../accessToken";
 
 const Login: FC<RouteComponentProps> = ({ history }) => {
   const [login] = useLoginMutation();
@@ -18,11 +19,28 @@ const Login: FC<RouteComponentProps> = ({ history }) => {
               password,
             },
           },
+          // update: (store, { data }) => {
+          //   if (!data) {
+          //     return null;
+          //   }
+          //   store.writeQuery<MeQuery>({
+          //     query: MeDocument,
+          //     // TODO: fix this it's wrong
+          //     data: {
+          //       me: {
+          //         _id: data.login.user.?._id,
+          //         username: data.login.user?.username
+          //       }
+          //     }
+          //   });
+          // },
         });
         console.log("response", response);
+        if (response && response.data) {
+          setAccessToken(response.data.login.token!);
+        }
         history.push("/");
-      }}
-    >
+      }}>
       <div>
         <input
           type="text"
